@@ -1,9 +1,28 @@
 modLoader="javafml"
 loaderVersion="[47,)"
-license="MIT"
+license="All rights reserved"
 
 [[mods]]
-modId="gendermod"
+modId="bub_addition"
 version="1.0.0"
 displayName="Gender Mod"
-authors="be_bub"
+logoFile=""
+credits=""
+authors="bebub"
+description='''
+Gender system for animals
+'''
+
+[[dependencies.bub_addition]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.bub_addition]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

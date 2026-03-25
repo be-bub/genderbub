@@ -3,14 +3,14 @@ package com.bebub.gendermod;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import com.bebub.gendermod.config.ModConfiguration.GenderRuleConfig;
+import com.bebub.gendermod.config.Config;
 
 public class GenderInteractionRule {
     private final String mobId;
     private final String gender;
     private final String itemId;
 
-    public GenderInteractionRule(GenderRuleConfig config) {
+    public GenderInteractionRule(Config.GenderRuleConfig config) {
         this.mobId = config.getMobId();
         this.gender = config.getGender();
         this.itemId = config.getItemId();
@@ -35,4 +35,4 @@ public class GenderInteractionRule {
     public String getItemId() {
         return itemId;
     }
-} 
+}
