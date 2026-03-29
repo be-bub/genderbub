@@ -1,5 +1,5 @@
-[![Download](https://img.shields.io/badge/Download-CurseForge-orange?style=for-the-badge&logo=curseforge)](https://legacy.curseforge.com/minecraft/mc-mods/gendermod)
-[![Download](https://img.shields.io/badge/Download-Modrinth-green?style=for-the-badge&logo=modrinth)](https://modrinth.com/mod/gendermod)
+[![Download](https://img.shields.io/badge/Download-CurseForge-orange?style=for-the-badge&logo=curseforge)](https://legacy.curseforge.com/minecraft/mc-mods/genderbub)
+[![Download](https://img.shields.io/badge/Download-Modrinth-green?style=for-the-badge&logo=modrinth)](https://modrinth.com/mod/genderbub)
 
 # ⚠️ Important
 **Before adding this mod to your modpack or world, make sure to create a backup of your world. This is a simple precaution for any unforeseen situations.**
