@@ -431,9 +431,7 @@ public class GenderConfig {
                 }
             }
             
-            if (needSave) {
-                save();
-            }
+            save();
             
             GenderMod.LOGGER.info("Found {} new animals: {}", newAnimals.size(), newAnimals);
         }
