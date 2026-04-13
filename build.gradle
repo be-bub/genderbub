@@ -65,6 +65,8 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     
     compileOnly fg.deobf("curse.maven:jade-324717:6855440")
+    compileOnly fg.deobf("curse.maven:ice-and-fire-dragons-264231:5633453")
+    compileOnly fg.deobf("curse.maven:citadel-331936:7476570")
 }
 
 jar {
