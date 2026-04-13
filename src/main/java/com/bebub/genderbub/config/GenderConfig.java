@@ -68,13 +68,14 @@ public class GenderConfig {
     public static class InteractionRule {
         public String mobId;
         public List<String> genders;
-        public List<String> items;
+        public List<String> itemIds;
         
-        public InteractionRule(String mobId, List<String> genders, List<String> items) {
+        public InteractionRule(String mobId, List<String> genders, List<String> itemIds) {
             this.mobId = mobId;
             this.genders = genders;
-            this.items = items;
+            this.itemIds = itemIds;
         }
+        
         public InteractionRule() {}
         
         public boolean isGenderMatch(String gender, boolean sterile) {
@@ -88,7 +89,7 @@ public class GenderConfig {
         }
         
         public boolean isItemMatch(String itemId) {
-            for (String id : items) {
+            for (String id : itemIds) {
                 if (id.equals(itemId)) return true;
                 if (id.startsWith("#")) {
                     TagKey<Item> tag = TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), ResourceLocation.tryParse(id.substring(1)));
@@ -111,6 +112,7 @@ public class GenderConfig {
             this.mobId = mobId;
             this.genders = genders;
         }
+        
         public EggRule() {}
         
         public boolean isGenderMatch(String gender, boolean sterile) {
