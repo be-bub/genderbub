@@ -1,0 +1,204 @@
+package com.bebub.genderbub;
+
+import com.bebub.genderbub.compat.GenderAddon;
+import com.bebub.genderbub.config.GenderConfig;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+
+@EventBusSubscriber(modid = GenderMod.MOD_ID)
+public class GenderEvents {
+
+    @SubscribeEvent
+    public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        if (entity.level().isClientSide()) return;
+
+        if (GenderAddon.isIceFireDragon(entity)) {
+            String correct = GenderAddon.getIceFireDragonGender(entity);
+            if (correct != null && !GenderCore.getGender(entity).equals(correct)) {
+                GenderCore.setGender(entity, correct);
+                GenderCore.setSterile(entity, false);
+            }
+            return;
+        }
+
+        if (entity instanceof Villager || entity instanceof ZombieVillager) {
+            if (GenderConfig.isEnableVillagers() && GenderCore.getGender(entity).equals("none")) {
+                String[] res = GenderConfig.getRandomGenderWithSterile();
+                if (!res[0].equals("none")) {
+                    GenderCore.setGender(entity, res[0]);
+                    GenderCore.setSterile(entity, Boolean.parseBoolean(res[1]));
+                }
+            }
+            return;
+        }
+
+        boolean isAnimal = entity instanceof Animal;
+        boolean isExternal = GenderAddon.isExternalMob(entity);
+        
+        if (!isAnimal && !isExternal) return;
+
+        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        String mobId = isExternal ? GenderAddon.getExternalMobId(entity) : (id != null ? id.toString() : null);
+        if (mobId == null) return;
+        
+        if (!GenderConfig.isMobEnabled(mobId)) return;
+
+        if (GenderConfig.getGenderOnlyMobs().contains(mobId)) {
+            if (GenderCore.getGender(entity).equals("none")) {
+                String[] res = GenderConfig.getRandomGenderWithSterile();
+                if (!res[0].equals("none")) {
+                    GenderCore.setGender(entity, res[0]);
+                    GenderCore.setSterile(entity, false);
+                }
+            }
+            return;
+        }
+
+        if (isExternal) {
+            if ((GenderAddon.isNaturalistLion(entity) && GenderAddon.isNaturalistLionBaby(entity)) ||
+                (GenderAddon.isPrimalLion(entity) && GenderAddon.isPrimalLionBaby(entity))) {
+                String current = GenderCore.getGender(entity);
+                if (!current.equals("baby")) {
+                    GenderCore.setGender(entity, "baby");
+                    GenderCore.setSterile(entity, false);
+                }
+                return;
+            }
+            GenderAddon.assignGenderIfMissing(entity);
+        } else if (GenderCore.getGender(entity).equals("none")) {
+            String[] res = GenderConfig.getRandomGenderWithSterile();
+            if (!res[0].equals("none")) {
+                GenderCore.setGender(entity, res[0]);
+                GenderCore.setSterile(entity, Boolean.parseBoolean(res[1]));
+
+                if (entity instanceof Animal animal && GenderConfig.isEggLayingBlocked(mobId, res[0], Boolean.parseBoolean(res[1]))) {
+                    CompoundTag nbt = new CompoundTag();
+                    animal.saveWithoutId(nbt);
+                    if (nbt.contains("EggLayTime")) {
+                        nbt.putInt("EggLayTime", 72000);
+                        animal.load(nbt);
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onScannerInteract(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (!(event.getTarget() instanceof LivingEntity entity)) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty()) return;
+        if (!GenderConfig.isScannerItem(stack.getItem())) return;
+
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+
+        onEntityJoinWorld(new EntityJoinLevelEvent(entity, entity.level()));
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        if (!(event.getTarget() instanceof LivingEntity entity)) return;
+        
+        if (GenderConfig.isScannerItem(event.getItemStack().getItem())) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        
+        if (shouldCancelInteraction(entity, event.getItemStack())) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.FAIL);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (!(event.getTarget() instanceof LivingEntity entity)) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        ItemStack held = event.getItemStack();
+        if (held.isEmpty()) return;
+        if (GenderConfig.isScannerItem(held.getItem())) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+
+        if (shouldCancelInteraction(entity, held)) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.FAIL);
+            return;
+        }
+
+        boolean animal = entity instanceof Animal;
+        boolean villager = entity instanceof Villager || entity instanceof ZombieVillager;
+        boolean external = GenderAddon.isExternalMob(entity);
+        if (!animal && !villager && !external) return;
+        if (villager && !GenderConfig.isEnableVillagers()) return;
+
+        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        String mobId = external ? GenderAddon.getExternalMobId(entity) : (id != null ? id.toString() : null);
+        if (mobId == null) return;
+        if (!GenderConfig.isMobEnabled(mobId)) return;
+    }
+
+    @SubscribeEvent
+    public static void onBabySpawn(BabyEntitySpawnEvent event) {
+        if (event.getChild() == null) return;
+        if (event.getChild().level().isClientSide()) return;
+        if (GenderAddon.isExternalMob(event.getChild())) return;
+
+        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(event.getChild().getType());
+        if (id == null) return;
+        String mobId = id.toString();
+
+        boolean villager = mobId.equals("minecraft:villager") || mobId.equals("minecraft:zombie_villager");
+        if (villager && !GenderConfig.isEnableVillagers()) return;
+        if (!GenderConfig.isMobEnabled(mobId)) return;
+
+        String[] res = GenderConfig.getRandomGenderWithSterile();
+        if (!res[0].equals("none")) {
+            GenderCore.setGender(event.getChild(), res[0]);
+            GenderCore.setSterile(event.getChild(), Boolean.parseBoolean(res[1]));
+        }
+    }
+
+    private static boolean shouldCancelInteraction(LivingEntity entity, ItemStack stack) {
+        boolean animal = entity instanceof Animal;
+        boolean villager = entity instanceof Villager || entity instanceof ZombieVillager;
+        boolean external = GenderAddon.isExternalMob(entity);
+        if (!animal && !villager && !external) return false;
+        if (villager && !GenderConfig.isEnableVillagers()) return false;
+
+        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        String mobId = external ? GenderAddon.getExternalMobId(entity) : (id != null ? id.toString() : null);
+        if (mobId == null) return false;
+        if (!GenderConfig.isMobEnabled(mobId)) return false;
+
+        if (external && ((GenderAddon.isNaturalistLion(entity) && GenderAddon.isNaturalistLionBaby(entity)) ||
+                         (GenderAddon.isPrimalLion(entity) && GenderAddon.isPrimalLionBaby(entity)))) {
+            return false;
+        }
+
+        String gender = GenderCore.getGender(entity);
+        if (gender.equals("none")) return false;
+        return GenderConfig.isItemBlocked(mobId, gender, GenderCore.isSterile(entity), stack.getItem());
+    }
+}

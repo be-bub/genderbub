@@ -1,0 +1,20 @@
+{
+    "itemGroup.genderbub": "GenderBub",
+    "item.genderbub.magnifying_glass": "Увеличительное стекло",
+    "item.genderbub.gender_stick": "Палка пола",
+    "item.genderbub.sterile_stick": "Палка стерильности",
+    
+    "genderbub.gender.male": "Самец",
+    "genderbub.gender.female": "Самка",
+    "genderbub.gender.baby": "Детёныш",
+    "genderbub.gender.sterile.male": "Бесплодный самец",
+    "genderbub.gender.sterile.female": "Бесплодная самка",
+    "genderbub.gender.sterile.baby": "Бесплодный детёныш",
+    
+    "genderbub.villager.male": "Мужчина",
+    "genderbub.villager.female": "Женщина",
+    "genderbub.villager.baby": "Ребёнок",
+    "genderbub.villager.sterile.male": "Бесплодный мужчина",
+    "genderbub.villager.sterile.female": "Бесплодная женщина",
+    "genderbub.villager.sterile.baby": "Бесплодный ребёнок"
+}

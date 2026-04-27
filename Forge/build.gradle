@@ -1,0 +1,89 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '6.0.+'
+    id 'eclipse'
+    id 'idea'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+def modVersion = project.properties.get('version', '1.0.0')
+def minecraftVersion = project.properties.get('minecraft_version', '1.20.1')
+def forgeVersion = project.properties.get('forge_version', '47.4.10')
+
+version = modVersion
+group = 'com.bebub.genderbub'
+archivesBaseName = 'genderbub-forge'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: minecraftVersion
+    
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.debug.export', 'true'
+            mods {
+                genderbub {
+                    source sourceSets.main
+                }
+            }
+        }
+        
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                genderbub {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, "genderbub.refmap.json"
+    config "genderbub.mixins.json"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name "CurseMaven"
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    
+    compileOnly fg.deobf("curse.maven:jade-324717:6855440")
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": "genderbub",
+            "Specification-Vendor": "bebub",
+            "Specification-Version": "1",
+            "Implementation-Title": project.name,
+            "Implementation-Version": project.version,
+            "Implementation-Vendor" :"bebub",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "MixinConfigs": "genderbub.mixins.json"
+        ])
+    }
+}
+
+processResources {
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': modVersion
+    }
+}
