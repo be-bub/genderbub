@@ -1,0 +1,20 @@
+{
+    "itemGroup.genderbub": "GenderBub",
+    "item.genderbub.magnifying_glass": "돋보기",
+    "item.genderbub.gender_stick": "성별 스틱",
+    "item.genderbub.sterile_stick": "불임 스틱",
+    
+    "genderbub.gender.male": "수컷",
+    "genderbub.gender.female": "암컷",
+    "genderbub.gender.baby": "새끼",
+    "genderbub.gender.sterile.male": "불임 수컷",
+    "genderbub.gender.sterile.female": "불임 암컷",
+    "genderbub.gender.sterile.baby": "불임 새끼",
+    
+    "genderbub.villager.male": "남자",
+    "genderbub.villager.female": "여자",
+    "genderbub.villager.baby": "아이",
+    "genderbub.villager.sterile.male": "불임 남자",
+    "genderbub.villager.sterile.female": "불임 여자",
+    "genderbub.villager.sterile.baby": "불임 아이"
+}

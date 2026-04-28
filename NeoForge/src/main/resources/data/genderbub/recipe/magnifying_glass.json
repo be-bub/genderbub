@@ -1,0 +1,24 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#G",
+        "/~"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:iron_nugget"
+        },
+        "G": {
+            "item": "minecraft:glass_pane"
+        },
+        "/": {
+            "item": "minecraft:stick"
+        },
+        "~": {
+            "item": "minecraft:string"
+        }
+    },
+    "result": {
+        "id": "genderbub:magnifying_glass"
+    }
+}

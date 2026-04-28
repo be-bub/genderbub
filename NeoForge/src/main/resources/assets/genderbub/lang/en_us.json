@@ -1,0 +1,32 @@
+{
+    "itemGroup.genderbub": "GenderBub",
+    "item.genderbub.magnifying_glass": "Magnifying Glass",
+    "item.genderbub.gender_stick": "Gender Stick",
+    "item.genderbub.sterile_stick": "Sterile Stick",
+    
+    "genderbub.gender.male": "Male",
+    "genderbub.gender.female": "Female",
+    "genderbub.gender.baby": "Baby",
+    "genderbub.gender.sterile.male": "Sterile Male",
+    "genderbub.gender.sterile.female": "Sterile Female",
+    "genderbub.gender.sterile.baby": "Sterile Baby",
+    
+    "genderbub.villager.male": "Man",
+    "genderbub.villager.female": "Woman",
+    "genderbub.villager.baby": "Child",
+    "genderbub.villager.sterile.male": "Sterile Man",
+    "genderbub.villager.sterile.female": "Sterile Woman",
+    "genderbub.villager.sterile.baby": "Sterile Child",
+    
+    "genderbub.command.reload.success": "Config reloaded! %d mobs enabled",
+    "genderbub.command.reload.failed": "Failed to reload config: %s",
+    "genderbub.command.reload.synced": "Config reloaded and synced! %d mobs, %d interactions, %d egg rules",
+    "genderbub.command.default.success": "Reset config to default! All caches cleared",
+    "genderbub.command.default.failed": "Failed to reset config: %s",
+    "genderbub.command.scan.start": "Scanning for new animals... Current: %d",
+    "genderbub.command.scan.no_new": "No new animals found! Total enabled: %d",
+    "genderbub.command.scan.found": "Found and added %d new animals!",
+    "genderbub.command.scan.total": "Total enabled mobs: %d",
+    "genderbub.command.scan.failed": "Scan failed: %s",
+    "genderbub.command.config.changed": "Config changed and saved"
+}
