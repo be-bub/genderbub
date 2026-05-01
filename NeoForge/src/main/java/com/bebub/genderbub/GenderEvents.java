@@ -3,7 +3,6 @@ package com.bebub.genderbub;
 import com.bebub.genderbub.compat.GenderAddon;
 import com.bebub.genderbub.config.GenderConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -84,15 +83,6 @@ public class GenderEvents {
             if (!res[0].equals("none")) {
                 GenderCore.setGender(entity, res[0]);
                 GenderCore.setSterile(entity, Boolean.parseBoolean(res[1]));
-
-                if (entity instanceof Animal animal && GenderConfig.isEggLayingBlocked(mobId, res[0], Boolean.parseBoolean(res[1]))) {
-                    CompoundTag nbt = new CompoundTag();
-                    animal.saveWithoutId(nbt);
-                    if (nbt.contains("EggLayTime")) {
-                        nbt.putInt("EggLayTime", 72000);
-                        animal.load(nbt);
-                    }
-                }
             }
         }
     }
