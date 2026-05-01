@@ -94,6 +94,10 @@ public class GenderConfig {
         return rule.isGenderMatch(gender, sterile);
     }
     
+    public static GenderData.EggRule getEggRule(String mobId) {
+        return GenderCache.getEggRule(mobId);
+    }
+    
     public static String[] getRandomGenderWithSterile() {
         return GenderMatcher.getRandomGenderWithSterile(getMaleChance(), getFemaleChance());
     }
