@@ -37,18 +37,23 @@ public class GenderScanner {
         List<String> validAnimals = filterAnimals(getAllMobs());
         List<String> newAnimals = new ArrayList<>();
         Set<String> existing = new HashSet<>(validAnimals);
+        boolean changes = false;
 
         for (String animal : validAnimals) {
             if (!data.settings.enabledMobs.contains(animal)) {
                 newAnimals.add(animal);
                 data.settings.enabledMobs.add(animal);
+                changes = true;
             }
         }
 
         addIceAndFireWhitelist(data, newAnimals);
-        addDefaultRules(data, existing);
 
-        if (!newAnimals.isEmpty()) {
+        if (addMissingRules(data, existing)) {
+            changes = true;
+        }
+
+        if (changes) {
             sortEnabledMobs(data);
             GenderLoader.save();
         }
@@ -62,7 +67,7 @@ public class GenderScanner {
             }
         }
         addIceAndFireWhitelist(data, null);
-        addDefaultRules(data, new HashSet<>(filterAnimals(getAllMobs())));
+        addMissingRules(data, new HashSet<>(filterAnimals(getAllMobs())));
         sortEnabledMobs(data);
         GenderLoader.save();
     }
@@ -127,22 +132,98 @@ public class GenderScanner {
         return false;
     }
 
-    private static void addDefaultRules(GenderData data, Set<String> existing) {
-        if (existing.contains("minecraft:cow") && data.interactions.stream().noneMatch(r -> r.mobId.equals("minecraft:cow"))) {
-            data.interactions.add(new GenderData.InteractionRule("minecraft:cow", Arrays.asList("male", "sterile"), Arrays.asList("minecraft:bucket")));
+    private static boolean addMissingRules(GenderData data, Set<String> existing) {
+        boolean changed = false;
+        List<String> buckets = new ArrayList<>(Arrays.asList("minecraft:bucket"));
+        
+        if (ModList.get().isLoaded("meadow")) {
+            buckets.add("meadow:wooden_bucket");
         }
-        if (existing.contains("minecraft:goat") && data.interactions.stream().noneMatch(r -> r.mobId.equals("minecraft:goat"))) {
-            data.interactions.add(new GenderData.InteractionRule("minecraft:goat", Arrays.asList("male", "sterile"), Arrays.asList("minecraft:bucket")));
+
+        if (existing.contains("minecraft:cow")) {
+            GenderData.InteractionRule rule = data.interactions.stream().filter(r -> r.mobId.equals("minecraft:cow")).findFirst().orElse(null);
+            if (rule == null) {
+                data.interactions.add(new GenderData.InteractionRule("minecraft:cow", Arrays.asList("male", "sterile"), buckets));
+                changed = true;
+            } else if (!rule.itemIds.equals(buckets)) {
+                rule.itemIds = buckets;
+                changed = true;
+            }
         }
-        if (existing.contains("minecraft:chicken") && data.eggRules.stream().noneMatch(r -> r.mobId.equals("minecraft:chicken"))) {
-            data.eggRules.add(new GenderData.EggRule("minecraft:chicken", Arrays.asList("male", "sterile")));
+
+        if (existing.contains("minecraft:goat")) {
+            GenderData.InteractionRule rule = data.interactions.stream().filter(r -> r.mobId.equals("minecraft:goat")).findFirst().orElse(null);
+            if (rule == null) {
+                data.interactions.add(new GenderData.InteractionRule("minecraft:goat", Arrays.asList("male", "sterile"), buckets));
+                changed = true;
+            } else if (!rule.itemIds.equals(buckets)) {
+                rule.itemIds = buckets;
+                changed = true;
+            }
         }
-        if (existing.contains("alexsmobs:emu") && data.eggRules.stream().noneMatch(r -> r.mobId.equals("alexsmobs:emu"))) {
-            data.eggRules.add(new GenderData.EggRule("alexsmobs:emu", Arrays.asList("male", "sterile")));
+
+        if (existing.contains("environmental:yak")) {
+            GenderData.InteractionRule rule = data.interactions.stream().filter(r -> r.mobId.equals("environmental:yak")).findFirst().orElse(null);
+            if (rule == null) {
+                data.interactions.add(new GenderData.InteractionRule("environmental:yak", Arrays.asList("male", "sterile"), buckets));
+                changed = true;
+            } else if (!rule.itemIds.equals(buckets)) {
+                rule.itemIds = buckets;
+                changed = true;
+            }
         }
-        if (existing.contains("naturalist:duck") && data.eggRules.stream().noneMatch(r -> r.mobId.equals("naturalist:duck"))) {
-            data.eggRules.add(new GenderData.EggRule("naturalist:duck", Arrays.asList("male", "sterile")));
+
+        if (existing.contains("meadow:water_buffalo")) {
+            GenderData.InteractionRule rule = data.interactions.stream().filter(r -> r.mobId.equals("meadow:water_buffalo")).findFirst().orElse(null);
+            if (rule == null) {
+                data.interactions.add(new GenderData.InteractionRule("meadow:water_buffalo", Arrays.asList("male", "sterile"), buckets));
+                changed = true;
+            } else if (!rule.itemIds.equals(buckets)) {
+                rule.itemIds = buckets;
+                changed = true;
+            }
         }
+
+        if (existing.contains("meadow:wooly_cow")) {
+            GenderData.InteractionRule rule = data.interactions.stream().filter(r -> r.mobId.equals("meadow:wooly_cow")).findFirst().orElse(null);
+            if (rule == null) {
+                data.interactions.add(new GenderData.InteractionRule("meadow:wooly_cow", Arrays.asList("male", "sterile"), buckets));
+                changed = true;
+            } else if (!rule.itemIds.equals(buckets)) {
+                rule.itemIds = buckets;
+                changed = true;
+            }
+        }
+
+        if (existing.contains("minecraft:chicken")) {
+            if (data.eggRules.stream().noneMatch(r -> r.mobId.equals("minecraft:chicken"))) {
+                data.eggRules.add(new GenderData.EggRule("minecraft:chicken", Arrays.asList("male", "sterile")));
+                changed = true;
+            }
+        }
+
+        if (existing.contains("alexsmobs:emu")) {
+            if (data.eggRules.stream().noneMatch(r -> r.mobId.equals("alexsmobs:emu"))) {
+                data.eggRules.add(new GenderData.EggRule("alexsmobs:emu", Arrays.asList("male", "sterile")));
+                changed = true;
+            }
+        }
+
+        if (existing.contains("naturalist:duck")) {
+            if (data.eggRules.stream().noneMatch(r -> r.mobId.equals("naturalist:duck"))) {
+                data.eggRules.add(new GenderData.EggRule("naturalist:duck", Arrays.asList("male", "sterile")));
+                changed = true;
+            }
+        }
+
+        if (existing.contains("environmental:duck")) {
+            if (data.eggRules.stream().noneMatch(r -> r.mobId.equals("environmental:duck"))) {
+                data.eggRules.add(new GenderData.EggRule("environmental:duck", Arrays.asList("male", "sterile")));
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     private static void sortEnabledMobs(GenderData data) {

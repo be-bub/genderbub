@@ -1,7 +1,6 @@
 package com.bebub.genderbub.compat;
 
 import com.bebub.genderbub.GenderCore;
-import com.bebub.genderbub.GenderMod;
 import com.bebub.genderbub.config.GenderConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -11,8 +10,19 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 public class GenderAddon {
+    
+    private static final Random RANDOM = new Random();
+    
+    private static boolean shouldBeSterile(int maleChance, int femaleChance, String gender) {
+        int chance = gender.equals("male") ? maleChance : femaleChance;
+        if (chance <= 0) return false;
+        int sterileChance = 50 - chance;
+        if (sterileChance <= 0) return false;
+        return RANDOM.nextInt(50) >= chance;
+    }
     
     private static final String NATURALIST_LION_CLASS = "com.starfish_studios.naturalist.server.entity.mob.Lion";
     private static EntityDataAccessor<Boolean> HAS_MANE_ACCESSOR = null;
@@ -77,6 +87,40 @@ public class GenderAddon {
         return null;
     }
     
+    private static final String ENVIRONMENTAL_DEER_CLASS = "com.teamabnormals.environmental.common.entity.animal.deer.AbstractDeer";
+    private static Method hasAntlersMethod = null;
+    private static boolean environmentalReflectionFailed = false;
+    
+    public static boolean isEnvironmentalDeer(LivingEntity e) {
+        Class<?> clazz = e.getClass();
+        while (clazz != null) {
+            if (clazz.getName().equals(ENVIRONMENTAL_DEER_CLASS)) {
+                return true;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return false;
+    }
+    
+    public static boolean isEnvironmentalDeerBaby(LivingEntity e) {
+        return e instanceof AgeableMob && ((AgeableMob) e).isBaby();
+    }
+    
+    private static String getEnvironmentalDeerGender(LivingEntity e) {
+        if (environmentalReflectionFailed) return null;
+        
+        try {
+            if (hasAntlersMethod == null) {
+                hasAntlersMethod = e.getClass().getMethod("hasAntlers");
+            }
+            boolean hasAntlers = (boolean) hasAntlersMethod.invoke(e);
+            return hasAntlers ? "male" : "female";
+        } catch (Exception ex) {
+            environmentalReflectionFailed = true;
+        }
+        return null;
+    }
+    
     private static Method iceFireIsMaleMethod = null;
     private static boolean iceFireReflectionFailed = false;
     
@@ -112,12 +156,13 @@ public class GenderAddon {
     }
     
     public static boolean isExternalMob(LivingEntity e) {
-        return isNaturalistLion(e) || isPrimalLion(e) || isIceFireDragon(e);
+        return isNaturalistLion(e) || isPrimalLion(e) || isIceFireDragon(e) || isEnvironmentalDeer(e);
     }
     
     public static String getExternalMobId(LivingEntity e) {
         if (isNaturalistLion(e)) return "naturalist:lion";
         if (isPrimalLion(e)) return "primal:lion";
+        if (isEnvironmentalDeer(e)) return "environmental:deer";
         if (isIceFireDragon(e)) {
             ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType());
             return id != null ? id.toString() : null;
@@ -138,10 +183,13 @@ public class GenderAddon {
                 return;
             }
             
-            String correctGender = getNaturalistLionGender(e);
-            if (correctGender != null && !correctGender.equals(current)) {
-                GenderCore.setGender(e, correctGender);
-                GenderCore.setSterile(e, false);
+            if (current.equals("baby") || current.equals("none")) {
+                String gender = getNaturalistLionGender(e);
+                if (gender != null) {
+                    boolean sterile = shouldBeSterile(GenderConfig.getMaleChance(), GenderConfig.getFemaleChance(), gender);
+                    GenderCore.setGender(e, gender);
+                    GenderCore.setSterile(e, sterile);
+                }
             }
             return;
         }
@@ -158,10 +206,36 @@ public class GenderAddon {
                 return;
             }
             
-            String correctGender = getPrimalLionGender(e);
-            if (correctGender != null && !correctGender.equals(current)) {
-                GenderCore.setGender(e, correctGender);
-                GenderCore.setSterile(e, false);
+            if (current.equals("baby") || current.equals("none")) {
+                String gender = getPrimalLionGender(e);
+                if (gender != null) {
+                    boolean sterile = shouldBeSterile(GenderConfig.getMaleChance(), GenderConfig.getFemaleChance(), gender);
+                    GenderCore.setGender(e, gender);
+                    GenderCore.setSterile(e, sterile);
+                }
+            }
+            return;
+        }
+        
+        if (isEnvironmentalDeer(e)) {
+            boolean isBaby = isEnvironmentalDeerBaby(e);
+            String current = GenderCore.getGender(e);
+            
+            if (isBaby) {
+                if (!current.equals("baby")) {
+                    GenderCore.setGender(e, "baby");
+                    GenderCore.setSterile(e, false);
+                }
+                return;
+            }
+            
+            if (current.equals("baby") || current.equals("none")) {
+                String gender = getEnvironmentalDeerGender(e);
+                if (gender != null) {
+                    boolean sterile = shouldBeSterile(GenderConfig.getMaleChance(), GenderConfig.getFemaleChance(), gender);
+                    GenderCore.setGender(e, gender);
+                    GenderCore.setSterile(e, sterile);
+                }
             }
             return;
         }
@@ -174,22 +248,6 @@ public class GenderAddon {
                     GenderCore.setGender(e, gender);
                     GenderCore.setSterile(e, false);
                 }
-            }
-        }
-    }
-    
-    public static void forceFixLionGender(LivingEntity e) {
-        if (isNaturalistLion(e) && !isNaturalistLionBaby(e)) {
-            String correctGender = getNaturalistLionGender(e);
-            if (correctGender != null) {
-                GenderCore.setGender(e, correctGender);
-                GenderCore.setSterile(e, false);
-            }
-        } else if (isPrimalLion(e) && !isPrimalLionBaby(e)) {
-            String correctGender = getPrimalLionGender(e);
-            if (correctGender != null) {
-                GenderCore.setGender(e, correctGender);
-                GenderCore.setSterile(e, false);
             }
         }
     }
