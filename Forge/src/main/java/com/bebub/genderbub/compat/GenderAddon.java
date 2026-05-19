@@ -80,6 +80,7 @@ public class GenderAddon {
     private static final String ENVIRONMENTAL_DEER_CLASS = "com.teamabnormals.environmental.common.entity.animal.deer.AbstractDeer";
     private static Method hasAntlersMethod = null;
     private static boolean environmentalReflectionFailed = false;
+    private static Class<?> reindeerClass = null;
     
     public static boolean isEnvironmentalDeer(LivingEntity e) {
         Class<?> clazz = e.getClass();
@@ -90,6 +91,17 @@ public class GenderAddon {
             clazz = clazz.getSuperclass();
         }
         return false;
+    }
+    
+    private static boolean isEnvironmentalReindeer(LivingEntity e) {
+        if (reindeerClass == null) {
+            try {
+                reindeerClass = Class.forName("com.teamabnormals.environmental.common.entity.animal.deer.Reindeer");
+            } catch (ClassNotFoundException ex) {
+                return false;
+            }
+        }
+        return reindeerClass.isAssignableFrom(e.getClass());
     }
     
     public static boolean isEnvironmentalDeerBaby(LivingEntity e) {
@@ -152,7 +164,10 @@ public class GenderAddon {
     public static String getExternalMobId(LivingEntity e) {
         if (isNaturalistLion(e)) return "naturalist:lion";
         if (isPrimalLion(e)) return "primal:lion";
-        if (isEnvironmentalDeer(e)) return "environmental:deer";
+        if (isEnvironmentalDeer(e)) {
+            if (isEnvironmentalReindeer(e)) return "environmental:reindeer";
+            return "environmental:deer";
+        }
         if (isIceFireDragon(e)) {
             ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType());
             return id != null ? id.toString() : null;
@@ -209,6 +224,7 @@ public class GenderAddon {
         
         if (isEnvironmentalDeer(e)) {
             boolean isBaby = isEnvironmentalDeerBaby(e);
+            boolean isReindeer = isEnvironmentalReindeer(e);
             String current = GenderCore.getGender(e);
             
             if (isBaby) {
@@ -220,11 +236,19 @@ public class GenderAddon {
             }
             
             if (current.equals("baby") || current.equals("none")) {
-                String gender = getEnvironmentalDeerGender(e);
-                if (gender != null) {
-                    boolean sterile = shouldBeSterile(GenderConfig.getMaleChance(), GenderConfig.getFemaleChance(), gender);
-                    GenderCore.setGender(e, gender);
-                    GenderCore.setSterile(e, sterile);
+                if (isReindeer) {
+                    String[] result = GenderConfig.getRandomGenderWithSterile();
+                    if (!result[0].equals("none")) {
+                        GenderCore.setGender(e, result[0]);
+                        GenderCore.setSterile(e, Boolean.parseBoolean(result[1]));
+                    }
+                } else {
+                    String gender = getEnvironmentalDeerGender(e);
+                    if (gender != null) {
+                        boolean sterile = shouldBeSterile(GenderConfig.getMaleChance(), GenderConfig.getFemaleChance(), gender);
+                        GenderCore.setGender(e, gender);
+                        GenderCore.setSterile(e, sterile);
+                    }
                 }
             }
             return;
