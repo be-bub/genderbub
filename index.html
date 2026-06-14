@@ -2,1258 +2,377 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenderBub Config Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BUB Online Editor</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 4v2h10V7H7zm0 4v2h10v-2H7zm0 4v2h7v-2H7z'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f12;color:#e1e3e6;min-height:100vh;display:flex;flex-direction:column;font-size:16px}
+        
+        .setting-label, .mob-item label, .rule-item, .egg-item, .checkbox-row label, .upload-sub p,
+        .mod-header, .rule-header input, .egg-item input, .add-item-btn, .add-btn, .delete-btn, .mode-btn, .expand-block-btn,
+        .link-btn, .setting-control input, .mobs-search input, .rules-search input, .eggs-search input,
+        .item-tag, .rule-genders label, .egg-genders label {
+            font-size: 0.95rem;
+        }
+        .gender-only-label-text {
+            font-size: 0.9rem !important;
+            margin-left: 0 !important;
+        }
+        .section-title { font-size: 1.08rem; font-weight: 600; }
+        .mod-header { font-size: 0.95rem; font-weight: 500; }
+        .mob-item label { font-size: 0.9rem; }
+        
+        ::-webkit-scrollbar{width:8px;height:8px}
+        ::-webkit-scrollbar-track{background:#1a1a1f;border-radius:4px}
+        ::-webkit-scrollbar-thumb{background:#3a3a42;border-radius:4px}
+        ::-webkit-scrollbar-thumb:hover{background:#50505c}
+        
+        .falling-symbols{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+        .symbol{position:absolute;font-size:14px;opacity:0.03;pointer-events:none;animation:fall linear infinite;color:#80848e}
+        @keyframes fall{0%{transform:translateY(-100vh) rotate(0deg)}100%{transform:translateY(100vh) rotate(360deg)}}
+        
+        .content{position:relative;z-index:1;flex:1;display:flex;flex-direction:column}
+        .header{padding:14px 28px;border-bottom:1px solid #1f1f24;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;background:#0f0f12}
+        .header-left h1{font-size:1.6rem;font-weight:600;background:linear-gradient(135deg,#e1e3e6,#b0b3bc);-webkit-background-clip:text;background-clip:text;color:transparent;cursor:pointer}
+        .header-left h1:hover{opacity:0.7}
+        .links{display:flex;gap:10px;align-items:center}
+        .link-btn{padding:6px 14px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:500;height:36px;display:inline-flex;align-items:center;gap:6px;background:#1a1a1f;border:1px solid #2a2a30;color:#b0b3bc;transition:all 0.15s}
+        .link-btn:hover{background:#25252c;color:#e1e3e6;border-color:#3a3a42}
+        .download-count {
+            font-size: 0.85rem;
+            background: transparent;
             padding: 0;
-            box-sizing: border-box;
+            border-radius: 0;
+            color: #7c7f8c;
+            margin-left: 4px;
+            font-weight: 400;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1a1e24;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3d444d;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #545d68;
-        }
-
-        .falling-symbols {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .symbol {
-            position: absolute;
-            font-size: 14px;
-            opacity: 0.1;
-            pointer-events: none;
-            user-select: none;
-            animation: fall linear infinite;
-            color: #58a6ff;
-        }
-
-        @keyframes fall {
-            0% {
-                transform: translateY(-100vh) rotate(0deg);
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-            }
-        }
-
-        .content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .header {
-            padding: 12px 24px;
-            border-bottom: 1px solid #30363d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            background: #0d1117;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .header-left h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .links {
-            display: flex;
-            gap: 8px;
-        }
-
-        .link-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: 0.2s;
-            height: 34px;
-            display: inline-flex;
-            align-items: center;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #58a6ff;
-        }
-
-        .link-btn:hover {
-            background: #30363d;
-        }
-
-        .upload-area {
-            margin: 30px 24px;
-            padding: 48px 20px;
-            text-align: center;
-            border: 2px dashed #30363d;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-            z-index: 2;
-            background: #161b22;
-        }
-
-        .upload-area:hover {
-            border-color: #58a6ff;
-        }
-
-        .container {
-            display: flex;
-            min-height: calc(100vh - 140px);
-            position: relative;
-            z-index: 2;
-        }
-
-        .editor-panel {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-            border-right: 1px solid #30363d;
-        }
-
-        .json-panel {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
+        
+        .hero-upload-center {
             display: flex;
             flex-direction: column;
-        }
-
-        .json-header {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 16px;
-            gap: 8px;
-        }
-
-        .json-actions button {
-            border: none;
-            padding: 5px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 500;
-            height: 34px;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-        }
-
-        .json-actions button:hover {
-            background: #30363d;
-        }
-
-        pre {
-            padding: 16px;
-            border-radius: 6px;
-            overflow-x: auto;
-            font-size: 12px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            align-items: center;
+            justify-content: center;
             flex: 1;
-            background: #161b22;
-            border: 1px solid #30363d;
-            color: #e6edf3;
+            padding: 40px 28px;
+            min-height: 55vh;
         }
-
-        .section {
-            margin-bottom: 28px;
-            padding: 16px;
-            border-radius: 6px;
-            background: #161b22;
-            border: 1px solid #30363d;
+        .upload-card {
+            background: #131318;
+            border: 2px solid #3a3a48;
+            border-radius: 12px;
+            padding: 48px 40px;
+            width: 620px;
+            max-width: 90%;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s, border-color 0.15s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-
-        .section-title {
-            font-size: 1rem;
+        .upload-card:hover {
+            background: #18181e;
+            transform: translateY(-2px);
+            border-color: #3b82f6;
+        }
+        .upload-card h3 {
+            font-size: 1.6rem;
             font-weight: 600;
-            margin-bottom: 14px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #30363d;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .section-title .hint {
-            font-size: 0.7rem;
-            font-weight: normal;
-            opacity: 0.6;
-        }
-
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .setting-label {
-            font-weight: 500;
-            font-size: 0.85rem;
-        }
-
-        .setting-control input {
-            padding: 4px 10px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            width: 80px;
-            font-size: 0.85rem;
-            height: 32px;
-            background: #0d1117;
-            color: #e6edf3;
-        }
-
-        .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-
-        .checkbox-row input {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-
-        .checkbox-row label {
-            cursor: pointer;
-        }
-
-        .mobs-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 12px;
-            gap: 10px;
-            flex-wrap: wrap;
+            color: #e1e3e6;
         }
-
-        .mobs-search {
-            flex: 2;
-            min-width: 150px;
-        }
-
-        .mobs-search input {
-            width: 100%;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            font-size: 0.85rem;
-            height: 34px;
-            background: #0d1117;
-            color: #e6edf3;
-        }
-
-        .mode-btn {
-            padding: 6px 14px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: #21262d;
-            color: #c9d1d9;
-            height: 34px;
-            min-width: 90px;
-        }
-
-        .mode-btn:hover {
-            background: #30363d;
-        }
-
-        .mode-btn.active {
-            background: #1f6feb;
-            border-color: #1f6feb;
-            color: white;
-        }
-
-        .expand-block-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: #21262d;
-            color: #c9d1d9;
-            height: 34px;
-        }
-
-        .expand-block-btn:hover {
-            background: #30363d;
-        }
-
-        .mobs-list {
-            max-height: 550px;
-            overflow-y: auto;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 8px;
-            transition: max-height 0.2s;
-            background: #0d1117;
-        }
-
-        .mod-group {
-            margin-bottom: 12px;
-            border-bottom: 1px solid #2d333b;
-            padding-bottom: 8px;
-        }
-
-        .mod-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 6px 4px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        .mod-header:hover {
-            background: #21262d;
-        }
-
-        .mod-toggle {
-            font-size: 12px;
-            transition: transform 0.15s;
-        }
-
-        .mod-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .mod-mobs {
-            margin-left: 24px;
-            margin-top: 6px;
-            display: block;
-        }
-
-        .mod-mobs.collapsed {
-            display: none;
-        }
-
-        .mob-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 0;
-            font-size: 0.8rem;
-        }
-
-        .mob-item input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            margin: 0;
-        }
-
-        .mob-item label {
-            cursor: pointer;
-            flex: 1;
-            font-family: monospace;
-            font-size: 0.8rem;
-        }
-
-        .rules-header, .eggs-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .rules-search, .eggs-search {
-            flex: 1;
-        }
-
-        .rules-search input, .eggs-search input {
-            width: 100%;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            font-size: 0.85rem;
-            height: 34px;
-            background: #0d1117;
-            color: #e6edf3;
-        }
-
-        .rules-container, .eggs-container {
-            max-height: 550px;
-            overflow-y: auto;
-            transition: max-height 0.2s;
-        }
-        .rules-container.expanded, .eggs-container.expanded {
-            max-height: none;
-        }
-
-        .rule-item, .egg-item {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            background: #0d1117;
-            border: 1px solid #30363d;
-        }
-
-        .rule-header {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .rule-header input {
-            flex: 1;
-            padding: 5px 8px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            font-size: 0.8rem;
-            height: 34px;
-            background: #0d1117;
-            color: #e6edf3;
-        }
-
-        .rule-genders, .egg-genders {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            font-size: 0.8rem;
-        }
-
-        .rule-genders label, .egg-genders label {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        .rule-items {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .item-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            transition: 0.2s;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-        }
-
-        .item-tag .item-text {
-            cursor: pointer;
-        }
-
-        .item-tag .item-text:hover {
-            text-decoration: underline;
-        }
-
-        .item-tag .item-delete {
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 4px;
-        }
-
-        .item-tag .item-delete:hover {
-            color: #f85149;
-        }
-
-        .add-item-btn, .add-btn, .delete-btn {
-            border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 500;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-        }
-
-        .add-item-btn:hover, .add-btn:hover {
-            background: #30363d;
-        }
-
-        .delete-btn {
-            background: #21262d;
-            color: #f85149;
-        }
-
-        .delete-btn:hover {
-            background: #da3633;
-            color: #ffffff;
-        }
-
-        .egg-item {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .egg-item input[type="text"] {
-            flex: 1;
-            padding: 5px 8px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            font-size: 0.8rem;
-            height: 34px;
-            min-width: 180px;
-            background: #0d1117;
-            color: #e6edf3;
-        }
-
-        .toast-notification {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            padding: 12px 24px;
-            border-radius: 8px;
+        .upload-sub {
             font-size: 0.9rem;
+            color: #9aa0ae;
+            margin-top: 24px;
+            border-top: 1px solid #2a2a30;
+            padding-top: 20px;
+        }
+        
+        .helper-bar {
+            display: flex;
+            justify-content: center;
+            margin: 8px 28px 28px 28px;
+        }
+        .tip-card {
+            background: #131318;
+            border: 1px solid #2a2a30;
+            border-radius: 12px;
+            padding: 12px 28px;
+            width: auto;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+        .tip-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+        }
+        .tip-btn {
+            display: inline-block;
+            padding: 8px 22px;
+            border-radius: 6px;
+            background: #1a1a1f;
+            border: 1px solid #3a3a42;
+            color: #e1e3e6;
+            text-decoration: none;
+            font-size: 0.85rem;
             font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            pointer-events: none;
-            white-space: nowrap;
-            background: #3a1a1a;
-            color: #f85149;
-            border: 1px solid #da3633;
+            transition: all 0.15s;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .tip-btn:hover {
+            background: #25252c;
+            border-color: #50505c;
         }
-
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateX(-50%) translateY(0); }
-            to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        
+        .main-layout{max-width:1000px;margin:0 auto;padding:20px 28px 24px 28px;width:100%}
+        .editor-panel{width:100%}
+        .section{margin-bottom:24px;background:#131318;border-radius:8px;border:1px solid #1f1f24;overflow:hidden}
+        .section-title{font-size:1rem;font-weight:600;margin:0;padding:14px 18px;background:#18181e;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none;border-bottom:1px solid #1f1f24}
+        .section-title:hover{background:#1f1f24}
+        .section-toggle{font-size:12px;transition:transform 0.2s;color:#b0b3bc}
+        .section-toggle.collapsed{transform:rotate(-90deg)}
+        .section-content{padding:18px;display:block}
+        .section-content.collapsed{display:none}
+        .setting-row{display:flex;align-items:center;margin-bottom:14px;gap:16px;flex-wrap:wrap}
+        .setting-label{font-weight:500;font-size:0.95rem;min-width:110px;color:#b0b3bc}
+        .setting-control input{padding:8px 14px;border-radius:6px;border:1px solid #2a2a30;width:100px;font-size:0.9rem;height:38px;background:#0f0f12;color:#e1e3e6}
+        .setting-control input:focus{outline:none;border-color:#50505c}
+        .checkbox-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:0.9rem}
+        .checkbox-row input{width:16px;height:16px;cursor:pointer;margin:0;accent-color:#3b82f6}
+        .checkbox-row label{cursor:pointer;color:#e1e3e6;font-size:0.9rem}
+        .mobs-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+        .mobs-search{flex:2;min-width:180px}
+        .mobs-search input{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #2a2a30;font-size:0.9rem;height:38px;background:#0f0f12;color:#e1e3e6}
+        .mode-btn{padding:6px 16px;border-radius:6px;border:1px solid #2a2a30;cursor:pointer;font-size:0.8rem;font-weight:500;background:#1a1a1f;color:#e1e3e6;height:38px;min-width:100px}
+        .mode-btn.active{background:#25252c;border-color:#50505c;color:#e1e3e6}
+        .expand-block-btn{padding:6px 14px;border-radius:6px;border:1px solid #2a2a30;cursor:pointer;font-size:0.8rem;font-weight:500;background:#1a1a1f;color:#e1e3e6;height:38px}
+        .expand-block-btn:hover,.mode-btn:hover,.add-btn:hover{background:#25252c}
+        .mobs-list{max-height:550px;overflow-y:auto;border:1px solid #2a2a30;border-radius:6px;padding:10px;background:#0f0f12}
+        .mod-group{margin-bottom:14px;border-bottom:1px solid #1f1f24;padding-bottom:10px}
+        .mod-header{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 6px;border-radius:6px;font-weight:600;font-size:0.95rem}
+        .mod-header:hover{background:#18181e}
+        .mod-toggle { display: none; }
+        .mod-mobs{margin-left:28px;margin-top:8px}
+        .mod-mobs.collapsed{display:none}
+        .mob-item{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:0.9rem}
+        .mob-item input[type="checkbox"]{width:16px;height:16px;cursor:pointer;margin:0;accent-color:#3b82f6}
+        .mob-item label{cursor:pointer;flex:1;font-family:'Inter',monospace;font-size:0.9rem}
+        .rules-header,.eggs-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px}
+        .rules-search,.eggs-search{flex:1}
+        .rules-search input,.eggs-search input{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #2a2a30;font-size:0.9rem;height:38px;background:#0f0f12;color:#e1e3e6}
+        .rules-container,.eggs-container{max-height:550px;overflow-y:auto}
+        .rules-container.expanded,.eggs-container.expanded{max-height:none}
+        .rule-item,.egg-item{padding:14px;border-radius:6px;margin-bottom:14px;background:#0f0f12;border:1px solid #1f1f24}
+        .rule-header{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+        .rule-header input{flex:1;padding:8px 12px;border-radius:6px;border:1px solid #2a2a30;font-size:0.9rem;height:38px;background:#0f0f12;color:#e1e3e6}
+        .rule-genders,.egg-genders{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;font-size:0.9rem}
+        .rule-genders label,.egg-genders label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem}
+        .rule-items{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+        .item-tag{display:inline-flex;align-items:center;gap:8px;padding:5px 10px;border-radius:6px;font-size:0.85rem;background:#1a1a1f;border:1px solid #2a2a30;color:#e1e3e6}
+        .item-tag .item-text{cursor:pointer}
+        .item-tag .item-text:hover{text-decoration:underline}
+        .item-tag .item-delete{cursor:pointer;font-weight:bold;margin-left:6px;color:#b0b3bc}
+        .item-tag .item-delete:hover{color:#f23f42}
+        .add-item-btn,.add-btn,.delete-btn{border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:500;height:34px;display:inline-flex;align-items:center;background:#1a1a1f;border:1px solid #2a2a30;color:#e1e3e6}
+        .delete-btn{color:#f23f42}
+        .delete-btn:hover{background:#25252c;color:#f23f42}
+        .egg-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+        .egg-item input[type="text"]{flex:2;padding:8px 12px;border-radius:6px;border:1px solid #2a2a30;font-size:0.9rem;height:38px;min-width:200px;background:#0f0f12;color:#e1e3e6}
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:1000;padding:12px 24px;border-radius:40px;font-size:0.85rem;font-weight:500;box-shadow:0 6px 16px rgba(0,0,0,0.4);pointer-events:none;animation:slideUp 0.2s ease forwards}
+        @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+        .toast-success{background:#1a3a1a;color:#6fcf97;border:1px solid #2ecc71}
+        .toast-error{background:#3a1a1a;color:#f23f42;border:1px solid #f23f42}
+        .toast-info{background:#1a2a3a;color:#e2b714;border:1px solid #e2b714}
+        
+        .save-bar{position:fixed;bottom:30px;right:30px;z-index:100}
+        .save-btn{
+            padding:12px 28px;
+            border-radius:8px;
+            font-size:0.95rem;
+            font-weight:500;
+            background:#1a1a1f;
+            border:1px solid #3a3a42;
+            color:#e1e3e6;
+            cursor:pointer;
+            transition:all 0.15s;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            .editor-panel {
-                border-right: none;
-                border-bottom: 1px solid #30363d;
-            }
-            .toast-notification {
-                white-space: normal;
-                text-align: center;
-                max-width: 90%;
-            }
-            .mobs-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        .save-btn:hover{
+            background:#1a1a1f;
+            border-color:#3b82f6;
+            color:#e1e3e6;
+            transform:none;
+            box-shadow:none;
         }
+        
+        @media(max-width:768px){.main-layout{padding:16px}.tip-card{width:95%;padding:12px 20px}.upload-card{padding:32px 24px}}
     </style>
 </head>
 <body>
-    <div class="falling-symbols" id="fallingSymbols"></div>
+<div class="falling-symbols" id="fallingSymbols"></div>
+<div class="content">
+    <div class="header">
+        <div class="header-left">
+            <h1 onclick="location.reload()">BUB Online Editor</h1>
+        </div>
+        <div class="links">
+            <a href="https://modrinth.com/mod/genderbub" target="_blank" class="link-btn" id="modrinthLink">Modrinth <span id="modrinthCount" class="download-count">—</span></a>
+            <a href="https://www.curseforge.com/minecraft/mc-mods/genderbub" target="_blank" class="link-btn" id="curseforgeLink">CurseForge <span id="curseforgeCount" class="download-count">—</span></a>
+            <a href="https://github.com/be-bub/genderbub" target="_blank" class="link-btn">GitHub</a>
+            <a href="https://www.patreon.com/cw/be_bub/membership" target="_blank" class="link-btn">Patreon</a>
+        </div>
+    </div>
     
-    <div class="content">
-        <div class="header">
-            <div class="header-left">
-                <h1>GenderBub Config Editor</h1>
+    <div id="uploadAreaContainer" class="hero-upload-center">
+        <div class="upload-card" onclick="document.getElementById('fileInput').click()">
+            <h3>Click or drag</h3>
+            <div class="upload-sub">
+                <p>This editor works only with GenderBUB mod config files.</p>
             </div>
-            <div class="header-right">
-                <div class="links">
-                    <a href="https://modrinth.com/mod/genderbub" target="_blank" class="link-btn">Modrinth</a>
-                    <a href="https://www.curseforge.com/minecraft/mc-mods/genderbub" target="_blank" class="link-btn">CurseForge</a>
-                    <a href="https://github.com/be-bub/genderbub" target="_blank" class="link-btn">GitHub</a>
-                </div>
-            </div>
+            <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadConfig(this.files[0])">
         </div>
-
-        <div id="uploadArea" class="upload-area" onclick="document.getElementById('fileInput').click()">
-            click or drag genderbub.json
-            <input type="file" id="fileInput" accept=".json" style="display: none" onchange="loadConfig(this.files[0])">
-        </div>
-
-        <div id="mainContainer" class="container" style="display: none;">
-            <div class="editor-panel" id="editorPanel"></div>
-            <div class="json-panel">
-                <div class="json-header">
-                    <div class="json-actions">
-                        <button id="copyBtn" onclick="copyToClipboard()">copy json</button>
-                        <button id="saveBtn" onclick="saveConfig()">save json</button>
-                    </div>
-                </div>
-                <pre id="jsonPreview">{\n  "loading": true\n}</pre>
+    </div>
+    
+    <div class="helper-bar" id="helperBar">
+        <div class="tip-card">
+            <div class="tip-buttons">
+                <a href="https://github.com/be-bub/genderbub/wiki" target="_blank" class="tip-btn">Wiki</a>
+                <a href="https://github.com/be-bub/genderbub/issues" target="_blank" class="tip-btn">Issues</a>
             </div>
         </div>
     </div>
+    
+    <div id="mainContainer" style="display:none">
+        <div class="main-layout">
+            <div class="editor-panel" id="editorPanel"></div>
+        </div>
+    </div>
+    <div id="saveBar" class="save-bar" style="display:none"><button class="save-btn" onclick="saveConfig()">Save Config</button></div>
+</div>
 
-    <script>
-        let currentConfig = null;
-        let groupedMode = true;
-        let modCollapsedState = {};
-        let rulesExpanded = false;
-        let eggsExpanded = false;
-        
-        let knownMobsList = [];
+<script>
+let cfg, grouped=true, modCollapsed={}, sectionCollapsed={}, mobsList=[], symbols=['0','1','2','3','4','5','6','7','8','9','♂','♀','{','}','[',']',':','"',',','<','>','/','?',';','|','=','+','-','_','(',')','*','&','^','%','$','#','@','!','~','`'];
 
-        let activeToast = null;
-        let toastTimeout = null;
-        let lastErrorMsg = null;
-        let consecutiveCount = 0;
-
-        function showErrorToast(msg) {
-            if (!msg) return;
-            if (activeToast && activeToast.parentNode) {
-                if (lastErrorMsg === msg) {
-                    consecutiveCount++;
-                    activeToast.textContent = `${msg} x${consecutiveCount}`;
-                    if (toastTimeout) clearTimeout(toastTimeout);
-                    toastTimeout = setTimeout(() => {
-                        if (activeToast && activeToast.parentNode) {
-                            activeToast.style.animation = 'fadeOut 0.2s ease forwards';
-                            setTimeout(() => {
-                                if (activeToast && activeToast.parentNode) activeToast.remove();
-                                activeToast = null;
-                                lastErrorMsg = null;
-                                consecutiveCount = 0;
-                            }, 200);
-                        }
-                    }, 2500);
-                    return;
-                } else {
-                    if (toastTimeout) clearTimeout(toastTimeout);
-                    if (activeToast && activeToast.parentNode) activeToast.remove();
-                    activeToast = null;
-                    lastErrorMsg = null;
-                    consecutiveCount = 0;
-                }
-            }
-            lastErrorMsg = msg;
-            consecutiveCount = 1;
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification error';
-            toast.textContent = msg;
-            toast.style.animation = 'fadeIn 0.2s ease forwards';
-            document.body.appendChild(toast);
-            activeToast = toast;
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                if (activeToast && activeToast.parentNode) {
-                    activeToast.style.animation = 'fadeOut 0.2s ease forwards';
-                    setTimeout(() => {
-                        if (activeToast && activeToast.parentNode) activeToast.remove();
-                        if (activeToast === toast) {
-                            activeToast = null;
-                            lastErrorMsg = null;
-                            consecutiveCount = 0;
-                        }
-                    }, 200);
-                }
-            }, 2500);
+function formatDownloads(num) {
+    if (num === undefined || num === null) return "—";
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1000) {
+        let thousands = num / 1000;
+        if (thousands >= 10) {
+            return Math.round(thousands) + 'K';
+        } else {
+            return thousands.toFixed(1).replace(/\.0$/, '') + 'K';
         }
+    }
+    return Math.round(num / 10) * 10;
+}
 
-        const symbols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '♂', '♀', '{', '}', '[', ']', ':', '"', ',', '<', '>', '/', '?', ';', '|', '=', '+', '-', '_', '(', ')', '*', '&', '^', '%', '$', '#', '@', '!', '~', '`'];
-
-        function createFallingSymbols() {
-            const container = document.getElementById('fallingSymbols');
-            if (!container) return;
-            container.innerHTML = '';
-            const symbolCount = window.innerWidth < 768 ? 30 : 60;
-            for (let i = 0; i < symbolCount; i++) {
-                const symbol = document.createElement('div');
-                symbol.className = 'symbol';
-                symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                symbol.style.fontSize = (10 + Math.random() * 8) + 'px';
-                symbol.style.left = Math.random() * 100 + '%';
-                symbol.style.animationDuration = 5 + Math.random() * 10 + 's';
-                symbol.style.animationDelay = Math.random() * 15 + 's';
-                symbol.style.opacity = 0.05 + Math.random() * 0.1;
-                container.appendChild(symbol);
+async function fetchDownloadCounts() {
+    try {
+        const modrinthRes = await fetch('https://api.modrinth.com/v2/project/genderbub');
+        if (modrinthRes.ok) {
+            const data = await modrinthRes.json();
+            const downloads = data.downloads || 0;
+            document.getElementById('modrinthCount').innerText = formatDownloads(downloads);
+        }
+    } catch(e) {}
+    
+    try {
+        const cfRes = await fetch('https://api.cfwidget.com/minecraft/mc-mods/genderbub');
+        if (cfRes.ok) {
+            const data = await cfRes.json();
+            const downloads = data.downloads?.total || 0;
+            document.getElementById('curseforgeCount').innerText = formatDownloads(downloads);
+        } else {
+            const fallbackRes = await fetch('https://cursemeta.dvdfu.com/api/v1/mods/1017085');
+            if(fallbackRes.ok) {
+                const fallbackData = await fallbackRes.json();
+                const downloads = fallbackData.downloads || 0;
+                document.getElementById('curseforgeCount').innerText = formatDownloads(downloads);
             }
         }
-        window.addEventListener('resize', () => createFallingSymbols());
-        setTimeout(createFallingSymbols, 100);
+    } catch(e) {}
+}
 
-        function isValidGenderbubConfig(obj) {
-            if (!obj || typeof obj !== 'object') return false;
-            return obj.hasOwnProperty('settings') && obj.hasOwnProperty('interactions') && obj.hasOwnProperty('eggRules');
-        }
+fetchDownloadCounts();
 
-        function sortMobArraysInConfig(config) {
-            if (!config.settings) return;
-            if (config.settings.enabledMobs && Array.isArray(config.settings.enabledMobs)) {
-                config.settings.enabledMobs.sort((a,b) => a.localeCompare(b));
-            }
-            if (config.settings.genderOnlyMobs && Array.isArray(config.settings.genderOnlyMobs)) {
-                config.settings.genderOnlyMobs.sort((a,b) => a.localeCompare(b));
-            }
-        }
-
-        function extractModId(mobId) {
-            const parts = mobId.split(':');
-            if (parts.length === 2) return parts[0];
-            return 'minecraft';
-        }
-
-        function groupMobsByMod(mobs) {
-            const groups = {};
-            for (const mob of mobs) {
-                const modId = extractModId(mob);
-                if (!groups[modId]) groups[modId] = [];
-                groups[modId].push(mob);
-            }
-            const sortedMods = Object.keys(groups).sort((a,b) => a.localeCompare(b));
-            const result = {};
-            for (const mod of sortedMods) {
-                result[mod] = groups[mod].sort((a,b) => a.localeCompare(b));
-            }
-            return result;
-        }
-
-        function toggleModGroup(modId) {
-            if (!groupedMode) return;
-            modCollapsedState[modId] = !modCollapsedState[modId];
-            renderMobsList();
-        }
-
-        function toggleGroupedMode() {
-            groupedMode = !groupedMode;
-            const btn = document.getElementById('modeToggleBtn');
-            if (btn) {
-                if (groupedMode) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            }
-            renderMobsList();
-        }
-
-        let mobsBlockExpanded = false;
-        function toggleMobsBlockExpand() {
-            mobsBlockExpanded = !mobsBlockExpanded;
-            const container = document.getElementById('mobsList');
-            if (container) {
-                if (mobsBlockExpanded) {
-                    container.style.maxHeight = 'none';
-                } else {
-                    container.style.maxHeight = '550px';
-                }
-            }
-            const btn = document.getElementById('mobsExpandBtn');
-            if (btn) btn.textContent = mobsBlockExpanded ? 'Collapse' : 'Expand';
-        }
-
-        function toggleRulesBlock() {
-            rulesExpanded = !rulesExpanded;
-            const container = document.getElementById('rulesContainer');
-            if (container) {
-                if (rulesExpanded) {
-                    container.classList.add('expanded');
-                    container.style.maxHeight = 'none';
-                } else {
-                    container.classList.remove('expanded');
-                    container.style.maxHeight = '550px';
-                }
-            }
-            const btn = document.getElementById('rulesExpandBtn');
-            if (btn) btn.textContent = rulesExpanded ? 'Collapse' : 'Expand';
-        }
-
-        function toggleEggsBlock() {
-            eggsExpanded = !eggsExpanded;
-            const container = document.getElementById('eggsContainer');
-            if (container) {
-                if (eggsExpanded) {
-                    container.classList.add('expanded');
-                    container.style.maxHeight = 'none';
-                } else {
-                    container.classList.remove('expanded');
-                    container.style.maxHeight = '550px';
-                }
-            }
-            const btn = document.getElementById('eggsExpandBtn');
-            if (btn) btn.textContent = eggsExpanded ? 'Collapse' : 'Expand';
-        }
-
-        function loadConfig(file) {
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (!isValidGenderbubConfig(parsed)) {
-                        showErrorToast('Error: This is not a valid GenderBub config file.');
-                        return;
-                    }
-                    currentConfig = parsed;
-                    sortMobArraysInConfig(currentConfig);
-                    if (!currentConfig.settings) currentConfig.settings = {};
-                    if (!currentConfig.interactions) currentConfig.interactions = [];
-                    if (!currentConfig.eggRules) currentConfig.eggRules = [];
-                    
-                    const allMobs = [...(currentConfig.settings.enabledMobs || []), ...(currentConfig.settings.genderOnlyMobs || [])];
-                    knownMobsList = [...new Set(allMobs)].sort((a,b) => a.localeCompare(b));
-                    
-                    for (const mod of Object.keys(groupMobsByMod(knownMobsList))) {
-                        if (modCollapsedState[mod] === undefined) {
-                            modCollapsedState[mod] = true;
-                        }
-                    }
-                    
-                    renderEditor(currentConfig);
-                    renderJson(currentConfig);
-                    document.getElementById('uploadArea').style.display = 'none';
-                    document.getElementById('mainContainer').style.display = 'flex';
-                } catch (err) {
-                    showErrorToast('Error parsing JSON: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function copyToClipboard() {
-            const text = document.getElementById('jsonPreview').textContent;
-            navigator.clipboard.writeText(text).catch(() => showErrorToast('Failed to copy'));
-        }
-
-        function saveConfig() {
-            if (!currentConfig) return;
-            sortMobArraysInConfig(currentConfig);
-            const jsonStr = JSON.stringify(currentConfig, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'genderbub.json';
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
-
-        function isInteractionRuleExists(mobId, excludeIndex = -1) {
-            if (!currentConfig.interactions) return false;
-            return currentConfig.interactions.some((rule, idx) => idx !== excludeIndex && rule.mobId === mobId);
-        }
-
-        function isEggRuleExists(mobId, excludeIndex = -1) {
-            if (!currentConfig.eggRules) return false;
-            return currentConfig.eggRules.some((rule, idx) => idx !== excludeIndex && rule.mobId === mobId);
-        }
-
-        function renderEditor(config) {
-            const panel = document.getElementById('editorPanel');
-            const s = config.settings;
-            const maleChance = s.maleChance !== undefined ? s.maleChance : 45;
-            const femaleChance = s.femaleChance !== undefined ? s.femaleChance : 45;
-            
-            const html = `
-                <div class="section">
-                    <div class="section-title">basic settings</div>
-                    <div class="setting-row"><span class="setting-label">male chance:</span><div class="setting-control"><input type="number" id="maleChance" min="0" max="50" value="${maleChance}" onchange="updateNumberSetting('maleChance', this.value)"></div></div>
-                    <div class="setting-row"><span class="setting-label">female chance:</span><div class="setting-control"><input type="number" id="femaleChance" min="0" max="50" value="${femaleChance}" onchange="updateNumberSetting('femaleChance', this.value)"></div></div>
-                    <div class="setting-row"><span class="setting-label">display radius:</span><div class="setting-control"><input type="number" id="displayRadius" min="0" max="128" value="${s.displayRadius || 24}" onchange="updateNumberSetting('displayRadius', this.value)"></div></div>
-                </div>
-                <div class="section">
-                    <div class="section-title">breeding</div>
-                    <div class="checkbox-row"><input type="checkbox" id="allowMaleMaleBreed" ${s.allowMaleMaleBreed === true ? 'checked' : ''} onchange="updateBoolSetting('allowMaleMaleBreed', this.checked)"><label>allow male + male breeding</label></div>
-                    <div class="checkbox-row"><input type="checkbox" id="allowFemaleFemaleBreed" ${s.allowFemaleFemaleBreed === true ? 'checked' : ''} onchange="updateBoolSetting('allowFemaleFemaleBreed', this.checked)"><label>allow female + female breeding</label></div>
-                    <div class="checkbox-row"><input type="checkbox" id="allowSterileBreed" ${s.allowSterileBreed === true ? 'checked' : ''} onchange="updateBoolSetting('allowSterileBreed', this.checked)"><label>allow sterile breeding</label></div>
-                </div>
-                <div class="section">
-                    <div class="section-title">villagers</div>
-                    <div class="checkbox-row"><input type="checkbox" id="enableVillagers" ${s.enableVillagers !== false ? 'checked' : ''} onchange="updateBoolSetting('enableVillagers', this.checked)"><label>enable villagers</label></div>
-                    <div class="checkbox-row"><input type="checkbox" id="keepVillagerGender" ${s.keepVillagerGender !== false ? 'checked' : ''} onchange="updateBoolSetting('keepVillagerGender', this.checked)"><label>keep gender on conversion</label></div>
-                </div>
-                <div class="section">
-                    <div class="section-title">client</div>
-                    <div class="checkbox-row"><input type="checkbox" id="requireScanner" ${s.requireScanner !== false ? 'checked' : ''} onchange="updateBoolSetting('requireScanner', this.checked)"><label>require magnifying glass</label></div>
-                    <div class="checkbox-row"><input type="checkbox" id="hideWithJade" ${s.hideWithJade !== false ? 'checked' : ''} onchange="updateBoolSetting('hideWithJade', this.checked)"><label>hide when jade is present</label></div>
-                    <div class="checkbox-row"><input type="checkbox" id="syncConfigRules" ${s.syncConfigRules === true ? 'checked' : ''} onchange="updateBoolSetting('syncConfigRules', this.checked)"><label>sync rules with server</label></div>
-                </div>
-                <div class="section">
-                    <div class="section-title">auto scan</div>
-                    <div class="checkbox-row"><input type="checkbox" id="autoScanComplete" ${config.autoScanComplete === true ? 'checked' : ''} onchange="updateRootBool('autoScanComplete', this.checked)"><label>auto scan completed</label></div>
-                </div>
-                <div class="section">
-                    <div class="section-title">enabled mobs <span class="hint">(click on mod name to collapse/expand group)</span></div>
-                    <div class="mobs-header">
-                        <div class="mobs-search"><input type="text" id="mobSearch" placeholder="search mobs..." onkeyup="renderMobsList()"></div>
-                        <button class="mode-btn active" id="modeToggleBtn" onclick="toggleGroupedMode()">Grouped</button>
-                        <button class="expand-block-btn" id="mobsExpandBtn" onclick="toggleMobsBlockExpand()">Expand</button>
-                    </div>
-                    <div class="mobs-list" id="mobsList"></div>
-                    <button class="add-btn" onclick="addCustomMob()" style="margin-top:8px;">+ add custom mob</button>
-                </div>
-                <div class="section">
-                    <div class="section-title">interaction rules</div>
-                    <div class="rules-header"><div class="rules-search"><input type="text" id="rulesSearch" placeholder="search rules by mob id..." onkeyup="renderRules()"></div><button class="expand-block-btn" id="rulesExpandBtn" onclick="toggleRulesBlock()">Expand</button></div>
-                    <div id="rulesContainer" class="rules-container"></div>
-                    <button class="add-btn" onclick="addInteractionRule()" style="margin-top:8px;">+ add rule</button>
-                </div>
-                <div class="section">
-                    <div class="section-title">egg rules</div>
-                    <div class="eggs-header"><div class="eggs-search"><input type="text" id="eggsSearch" placeholder="search egg rules by mob id..." onkeyup="renderEggs()"></div><button class="expand-block-btn" id="eggsExpandBtn" onclick="toggleEggsBlock()">Expand</button></div>
-                    <div id="eggsContainer" class="eggs-container"></div>
-                    <button class="add-btn" onclick="addEggRule()" style="margin-top:8px;">+ add egg rule</button>
-                </div>
-            `;
-            panel.innerHTML = html;
-            
-            const modeBtn = document.getElementById('modeToggleBtn');
-            if (modeBtn) {
-                if (groupedMode) {
-                    modeBtn.classList.add('active');
-                } else {
-                    modeBtn.classList.remove('active');
-                }
-            }
-            
-            const rulesContainer = document.getElementById('rulesContainer');
-            if (rulesContainer) {
-                if (rulesExpanded) {
-                    rulesContainer.classList.add('expanded');
-                    rulesContainer.style.maxHeight = 'none';
-                } else {
-                    rulesContainer.classList.remove('expanded');
-                    rulesContainer.style.maxHeight = '550px';
-                }
-            }
-            const rulesBtn = document.getElementById('rulesExpandBtn');
-            if (rulesBtn) rulesBtn.textContent = rulesExpanded ? 'Collapse' : 'Expand';
-            
-            const eggsContainer = document.getElementById('eggsContainer');
-            if (eggsContainer) {
-                if (eggsExpanded) {
-                    eggsContainer.classList.add('expanded');
-                    eggsContainer.style.maxHeight = 'none';
-                } else {
-                    eggsContainer.classList.remove('expanded');
-                    eggsContainer.style.maxHeight = '550px';
-                }
-            }
-            const eggsBtn = document.getElementById('eggsExpandBtn');
-            if (eggsBtn) eggsBtn.textContent = eggsExpanded ? 'Collapse' : 'Expand';
-            
-            renderMobsList();
-            renderRules();
-            renderEggs();
-        }
-
-        function renderMobsList() {
-            const search = (document.getElementById('mobSearch')?.value || '').toLowerCase();
-            const enabledMobs = currentConfig.settings.enabledMobs || [];
-            const genderOnlyMobs = currentConfig.settings.genderOnlyMobs || [];
-            
-            let filteredMobs = knownMobsList.filter(m => m.toLowerCase().includes(search));
-            const container = document.getElementById('mobsList');
-            if (!container) return;
-            
-            if (!groupedMode) {
-                if (filteredMobs.length === 0) {
-                    container.innerHTML = '<div style="padding: 16px; text-align: center; opacity: 0.6;">no mobs found</div>';
-                    return;
-                }
-                container.innerHTML = filteredMobs.map(mob => {
-                    const isEnabled = enabledMobs.includes(mob);
-                    const isGenderOnly = genderOnlyMobs.includes(mob);
-                    return `<div class="mob-item">
-                        <input type="checkbox" id="mob_${mob.replace(/[:.]/g, '_')}" ${isEnabled ? 'checked' : ''} onchange="toggleMobEnabled('${escapeHtml(mob).replace(/'/g, "\\'")}', this.checked)">
-                        <label for="mob_${mob.replace(/[:.]/g, '_')}" style="${isEnabled ? '' : 'opacity: 0.6'}">${escapeHtml(mob)}</label>
-                        ${isEnabled ? `<input type="checkbox" id="genderOnly_${mob.replace(/[:.]/g, '_')}" ${isGenderOnly ? 'checked' : ''} onchange="toggleMobGenderOnly('${escapeHtml(mob).replace(/'/g, "\\'")}', this.checked)" style="width: auto; margin-left: auto;">
-                        <label for="genderOnly_${mob.replace(/[:.]/g, '_')}" style="margin-left: 0; font-size: 0.7rem;">gender only</label>` : '<span style="margin-left: auto;"></span>'}
-                    </div>`;
-                }).join('');
-                return;
-            }
-            
-            const groups = groupMobsByMod(filteredMobs);
-            if (Object.keys(groups).length === 0) {
-                container.innerHTML = '<div style="padding: 16px; text-align: center; opacity: 0.6;">no mobs found</div>';
-                return;
-            }
-            
-            container.innerHTML = Object.entries(groups).map(([modId, mobs]) => {
-                const isCollapsed = modCollapsedState[modId] === true;
-                return `
-                    <div class="mod-group">
-                        <div class="mod-header" onclick="toggleModGroup('${escapeHtml(modId)}')">
-                            <span class="mod-toggle ${isCollapsed ? 'collapsed' : ''}">▼</span>
-                            <span>${escapeHtml(modId)} (${mobs.length})</span>
-                        </div>
-                        <div class="mod-mobs ${isCollapsed ? 'collapsed' : ''}">
-                            ${mobs.map(mob => {
-                                const isEnabled = enabledMobs.includes(mob);
-                                const isGenderOnly = genderOnlyMobs.includes(mob);
-                                return `<div class="mob-item">
-                                    <input type="checkbox" id="mob_${mob.replace(/[:.]/g, '_')}" ${isEnabled ? 'checked' : ''} onchange="toggleMobEnabled('${escapeHtml(mob).replace(/'/g, "\\'")}', this.checked)">
-                                    <label for="mob_${mob.replace(/[:.]/g, '_')}" style="${isEnabled ? '' : 'opacity: 0.6'}">${escapeHtml(mob)}</label>
-                                    ${isEnabled ? `<input type="checkbox" id="genderOnly_${mob.replace(/[:.]/g, '_')}" ${isGenderOnly ? 'checked' : ''} onchange="toggleMobGenderOnly('${escapeHtml(mob).replace(/'/g, "\\'")}', this.checked)" style="width: auto; margin-left: auto;">
-                                    <label for="genderOnly_${mob.replace(/[:.]/g, '_')}" style="margin-left: 0; font-size: 0.7rem;">gender only</label>` : '<span style="margin-left: auto;"></span>'}
-                                </div>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderRules() {
-            const container = document.getElementById('rulesContainer');
-            if (!container) return;
-            const rules = currentConfig.interactions || [];
-            const search = document.getElementById('rulesSearch')?.value.toLowerCase() || '';
-            let filtered = rules.filter(rule => (rule.mobId || '').toLowerCase().includes(search));
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div style="padding: 16px; text-align: center; opacity: 0.6;">no rules</div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map((rule, idx) => {
-                const originalIdx = rules.indexOf(rule);
-                return `<div class="rule-item"><div class="rule-header"><input type="text" value="${escapeHtml(rule.mobId || '')}" placeholder="example: modname:mobname" onchange="updateRule(${originalIdx}, 'mobId', this.value)"><button class="delete-btn" onclick="deleteRule(${originalIdx})">delete</button></div><div class="rule-genders"><label><input type="checkbox" ${rule.genders?.includes('male') ? 'checked' : ''} onchange="updateRuleGender(${originalIdx}, 'male', this.checked)"> male</label><label><input type="checkbox" ${rule.genders?.includes('female') ? 'checked' : ''} onchange="updateRuleGender(${originalIdx}, 'female', this.checked)"> female</label><label><input type="checkbox" ${rule.genders?.includes('sterile') ? 'checked' : ''} onchange="updateRuleGender(${originalIdx}, 'sterile', this.checked)"> sterile</label><label><input type="checkbox" ${rule.genders?.includes('any') ? 'checked' : ''} onchange="updateRuleGender(${originalIdx}, 'any', this.checked)"> any</label></div><div class="rule-items" id="rule-items-${originalIdx}">${renderItemTags(rule.itemIds || [], originalIdx)}<button class="add-item-btn" onclick="addItemToRule(${originalIdx})">+ add item</button></div></div>`;
-            }).join('');
-        }
-
-        function renderEggs() {
-            const container = document.getElementById('eggsContainer');
-            if (!container) return;
-            const eggs = currentConfig.eggRules || [];
-            const search = document.getElementById('eggsSearch')?.value.toLowerCase() || '';
-            let filtered = eggs.filter(egg => (egg.mobId || '').toLowerCase().includes(search));
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div style="padding: 16px; text-align: center; opacity: 0.6;">no egg rules</div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map((egg, idx) => {
-                const originalIdx = eggs.indexOf(egg);
-                return `<div class="egg-item"><input type="text" value="${escapeHtml(egg.mobId || '')}" placeholder="example: modname:mobname" onchange="updateEggMob(${originalIdx}, this.value)" style="flex:2;"><div class="egg-genders"><label><input type="checkbox" ${egg.genders?.includes('male') ? 'checked' : ''} onchange="updateEggGender(${originalIdx}, 'male', this.checked)"> male</label><label><input type="checkbox" ${egg.genders?.includes('female') ? 'checked' : ''} onchange="updateEggGender(${originalIdx}, 'female', this.checked)"> female</label><label><input type="checkbox" ${egg.genders?.includes('sterile') ? 'checked' : ''} onchange="updateEggGender(${originalIdx}, 'sterile', this.checked)"> sterile</label><label><input type="checkbox" ${egg.genders?.includes('any') ? 'checked' : ''} onchange="updateEggGender(${originalIdx}, 'any', this.checked)"> any</label></div><button class="delete-btn" onclick="deleteEgg(${originalIdx})">delete</button></div>`;
-            }).join('');
-        }
-
-        function renderItemTags(items, ruleIdx) {
-            if (!items?.length) return '<span style="font-size:0.7rem;opacity:0.6;">no items</span>';
-            return items.map((item, itemIdx) => `<span class="item-tag"><span class="item-text" onclick="editItemInRule(${ruleIdx}, ${itemIdx})">${escapeHtml(item)}</span><span class="item-delete" onclick="removeItemFromRule(${ruleIdx}, ${itemIdx})">✕</span></span>`).join('');
-        }
-
-        function toggleMobEnabled(mobId, checked) {
-            if (!currentConfig.settings.enabledMobs) currentConfig.settings.enabledMobs = [];
-            if (checked) {
-                if (!currentConfig.settings.enabledMobs.includes(mobId)) {
-                    currentConfig.settings.enabledMobs.push(mobId);
-                }
-                if (!knownMobsList.includes(mobId)) {
-                    knownMobsList.push(mobId);
-                    knownMobsList.sort();
-                }
-            } else {
-                const index = currentConfig.settings.enabledMobs.indexOf(mobId);
-                if (index !== -1) currentConfig.settings.enabledMobs.splice(index, 1);
-                if (currentConfig.settings.genderOnlyMobs?.includes(mobId)) {
-                    const gIndex = currentConfig.settings.genderOnlyMobs.indexOf(mobId);
-                    if (gIndex !== -1) currentConfig.settings.genderOnlyMobs.splice(gIndex, 1);
-                }
-            }
-            sortMobArraysInConfig(currentConfig);
-            renderMobsList();
-            renderJson(currentConfig);
-        }
-
-        function toggleMobGenderOnly(mobId, checked) {
-            if (!currentConfig.settings.genderOnlyMobs) currentConfig.settings.genderOnlyMobs = [];
-            if (checked) {
-                if (!currentConfig.settings.genderOnlyMobs.includes(mobId)) {
-                    currentConfig.settings.genderOnlyMobs.push(mobId);
-                }
-                if (!currentConfig.settings.enabledMobs.includes(mobId)) {
-                    currentConfig.settings.enabledMobs.push(mobId);
-                }
-            } else {
-                const index = currentConfig.settings.genderOnlyMobs.indexOf(mobId);
-                if (index !== -1) currentConfig.settings.genderOnlyMobs.splice(index, 1);
-            }
-            sortMobArraysInConfig(currentConfig);
-            renderMobsList();
-            renderJson(currentConfig);
-        }
-
-        function addCustomMob() {
-            const mobId = prompt('enter mob id (example: minecraft:cow or modname:mobname):');
-            if (!mobId) return;
-            if (!currentConfig.settings.enabledMobs) currentConfig.settings.enabledMobs = [];
-            if (!knownMobsList.includes(mobId)) {
-                knownMobsList.push(mobId);
-                knownMobsList.sort();
-            }
-            if (!currentConfig.settings.enabledMobs.includes(mobId)) {
-                currentConfig.settings.enabledMobs.push(mobId);
-                sortMobArraysInConfig(currentConfig);
-                const modId = extractModId(mobId);
-                if (modCollapsedState[modId] === undefined) modCollapsedState[modId] = true;
-                renderMobsList();
-                renderJson(currentConfig);
-            } else {
-                showErrorToast('Mob already exists');
-            }
-        }
-
-        function editItemInRule(ruleIdx, itemIdx) { if(!currentConfig.interactions[ruleIdx]?.itemIds) return; const newItem = prompt('edit item id:', currentConfig.interactions[ruleIdx].itemIds[itemIdx]); if(newItem) { currentConfig.interactions[ruleIdx].itemIds[itemIdx] = newItem; renderRules(); renderJson(currentConfig); } }
-        function removeItemFromRule(ruleIdx, itemIdx) { currentConfig.interactions[ruleIdx].itemIds.splice(itemIdx,1); renderRules(); renderJson(currentConfig); }
-        function addItemToRule(ruleIdx) { const itemId = prompt('enter item id:'); if(itemId) { if(!currentConfig.interactions[ruleIdx].itemIds) currentConfig.interactions[ruleIdx].itemIds = []; currentConfig.interactions[ruleIdx].itemIds.push(itemId); renderRules(); renderJson(currentConfig); } }
-        
-        function updateRule(idx, field, value) { 
-            if(currentConfig.interactions[idx]) {
-                const oldId = currentConfig.interactions[idx].mobId;
-                if (oldId !== value && isInteractionRuleExists(value, idx)) { showErrorToast('Rule for this mob already exists!'); renderRules(); return; }
-                currentConfig.interactions[idx].mobId = value; 
-            }
-            renderJson(currentConfig); renderRules();
-        }
-        
-        function updateRuleGender(idx, gender, checked) { if(!currentConfig.interactions[idx].genders) currentConfig.interactions[idx].genders = []; if(checked) { if(!currentConfig.interactions[idx].genders.includes(gender)) currentConfig.interactions[idx].genders.push(gender); } else currentConfig.interactions[idx].genders = currentConfig.interactions[idx].genders.filter(g => g !== gender); renderJson(currentConfig); renderRules(); }
-        function deleteRule(idx) { currentConfig.interactions.splice(idx,1); renderRules(); renderJson(currentConfig); }
-        
-        function addInteractionRule() { 
-            if(!currentConfig.interactions) currentConfig.interactions = []; 
-            const newMobId = "modname:mobname";
-            if (isInteractionRuleExists(newMobId)) { showErrorToast('Rule for this mob already exists!'); return; }
-            currentConfig.interactions.push({ mobId: newMobId, genders: ["male", "sterile"], itemIds: ["modname:itemname"] }); 
-            renderRules(); renderJson(currentConfig);
-        }
-
-        function updateEggMob(idx, value) { 
-            if(currentConfig.eggRules[idx]) {
-                const oldId = currentConfig.eggRules[idx].mobId;
-                if (oldId !== value && isEggRuleExists(value, idx)) { showErrorToast('Egg rule for this mob already exists!'); renderEggs(); return; }
-                currentConfig.eggRules[idx].mobId = value; 
-            }
-            renderJson(currentConfig); renderEggs();
-        }
-        
-        function updateEggGender(idx, gender, checked) { if(!currentConfig.eggRules[idx].genders) currentConfig.eggRules[idx].genders = []; if(checked) { if(!currentConfig.eggRules[idx].genders.includes(gender)) currentConfig.eggRules[idx].genders.push(gender); } else currentConfig.eggRules[idx].genders = currentConfig.eggRules[idx].genders.filter(g => g !== gender); renderJson(currentConfig); renderEggs(); }
-        function deleteEgg(idx) { currentConfig.eggRules.splice(idx,1); renderEggs(); renderJson(currentConfig); }
-        
-        function addEggRule() { 
-            if(!currentConfig.eggRules) currentConfig.eggRules = []; 
-            const newMobId = "modname:mobname";
-            if (isEggRuleExists(newMobId)) { showErrorToast('Egg rule for this mob already exists!'); return; }
-            currentConfig.eggRules.push({ mobId: newMobId, genders: ["male", "sterile"] }); 
-            renderEggs(); renderJson(currentConfig);
-        }
-        
-        function updateNumberSetting(key, value) { 
-            if(!currentConfig.settings) currentConfig.settings = {}; 
-            let num = parseInt(value); 
-            if (isNaN(num)) num = 0; 
-            if (key === 'maleChance' || key === 'femaleChance') num = Math.min(50, Math.max(0, num)); 
-            if (key === 'displayRadius') num = Math.min(128, Math.max(0, num)); 
-            currentConfig.settings[key] = num; 
-            renderJson(currentConfig); 
-        }
-        
-        function updateBoolSetting(key, value) {
-            if(!currentConfig.settings) currentConfig.settings = {};
-            currentConfig.settings[key] = value === true;
-            renderJson(currentConfig);
-        }
-        
-        function updateRootBool(key, value) {
-            currentConfig[key] = value === true;
-            renderJson(currentConfig);
-        }
-        
-        function renderJson(config) { document.getElementById('jsonPreview').textContent = JSON.stringify(config, null, 2); }
-        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-        
-        window.toggleModGroup = toggleModGroup;
-        window.toggleGroupedMode = toggleGroupedMode;
-        window.toggleMobsBlockExpand = toggleMobsBlockExpand;
-        window.toggleRulesBlock = toggleRulesBlock;
-        window.toggleEggsBlock = toggleEggsBlock;
-        window.toggleMobEnabled = toggleMobEnabled;
-        window.toggleMobGenderOnly = toggleMobGenderOnly;
-        window.addCustomMob = addCustomMob;
-        window.updateNumberSetting = updateNumberSetting;
-        window.updateBoolSetting = updateBoolSetting;
-        window.updateRootBool = updateRootBool;
-        window.updateRule = updateRule;
-        window.updateRuleGender = updateRuleGender;
-        window.deleteRule = deleteRule;
-        window.addInteractionRule = addInteractionRule;
-        window.updateEggMob = updateEggMob;
-        window.updateEggGender = updateEggGender;
-        window.deleteEgg = deleteEgg;
-        window.addEggRule = addEggRule;
-        window.editItemInRule = editItemInRule;
-        window.removeItemFromRule = removeItemFromRule;
-        window.addItemToRule = addItemToRule;
-        window.renderMobsList = renderMobsList;
-        window.renderRules = renderRules;
-        window.renderEggs = renderEggs;
-        
-        const dropZone = document.getElementById('uploadArea');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#58a6ff'; });
-        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#30363d'; });
-        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = '#30363d'; const file = e.dataTransfer.files[0]; if(file && file.name.endsWith('.json')) loadConfig(file); else showErrorToast('Please upload a .json file'); });
-    </script>
+function createFallingSymbols(){let c=document.getElementById('fallingSymbols');if(!c)return;c.innerHTML='';let n=window.innerWidth<768?30:60;for(let i=0;i<n;i++){let s=document.createElement('div');s.className='symbol';s.textContent=symbols[Math.floor(Math.random()*symbols.length)];s.style.fontSize=(10+Math.random()*8)+'px';s.style.left=Math.random()*100+'%';s.style.animationDuration=5+Math.random()*10+'s';s.style.animationDelay=Math.random()*15+'s';s.style.opacity=0.03+Math.random()*0.04;c.appendChild(s)}}
+window.addEventListener('resize',()=>createFallingSymbols());setTimeout(createFallingSymbols,100);
+function toast(msg,type='info'){let t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.2s';setTimeout(()=>t.remove(),200)},2800);}
+function valid(o){return o&&typeof o=='object'&&o.settings&&o.interactions&&o.eggRules}
+function sortMobs(c){if(c.settings.enabledMobs)c.settings.enabledMobs.sort();if(c.settings.genderOnlyMobs)c.settings.genderOnlyMobs.sort()}
+function modId(m){let p=m.split(':');return p.length===2?p[0]:'minecraft'}
+function groupMobs(m){let g={};m.forEach(mob=>{let id=modId(mob);if(!g[id])g[id]=[];g[id].push(mob)});Object.keys(g).forEach(k=>g[k].sort());return g}
+function toggleMod(m){if(grouped){modCollapsed[m]=!modCollapsed[m];renderMobs()}}
+function toggleGroup(){grouped=!grouped;let btn=document.getElementById('modeToggleBtn');if(btn)btn.classList.toggle('active',grouped);renderMobs()}
+function toggleSection(id){sectionCollapsed[id]=!sectionCollapsed[id];let btn=document.getElementById(`toggle-${id}`);let cont=document.getElementById(`content-${id}`);if(btn)btn.classList.toggle('collapsed',sectionCollapsed[id]);if(cont)cont.classList.toggle('collapsed',sectionCollapsed[id])}
+function resetToUpload(){document.getElementById('uploadAreaContainer').style.display='flex';document.getElementById('helperBar').style.display='flex';document.getElementById('mainContainer').style.display='none';document.getElementById('saveBar').style.display='none';cfg=null;}
+function loadConfig(f){if(!f)return;let r=new FileReader();r.onload=e=>{try{let p=JSON.parse(e.target.result);if(!valid(p)){toast('Error: Invalid GenderBub config file','error');return}cfg=p;sortMobs(cfg);if(!cfg.settings)cfg.settings={};if(!cfg.interactions)cfg.interactions=[];if(!cfg.eggRules)cfg.eggRules=[];let all=[...(cfg.settings.enabledMobs||[]),...(cfg.settings.genderOnlyMobs||[])];mobsList=[...new Set(all)].sort();Object.keys(groupMobs(mobsList)).forEach(m=>{if(modCollapsed[m]===undefined)modCollapsed[m]=true});['basic','breeding','villagers','client','auto','mobs','rules','eggs'].forEach(s=>{if(sectionCollapsed[s]===undefined)sectionCollapsed[s]=false});renderEditor();document.getElementById('uploadAreaContainer').style.display='none';document.getElementById('helperBar').style.display='none';document.getElementById('mainContainer').style.display='block';document.getElementById('saveBar').style.display='block';toast('Config loaded successfully','success')}catch(err){toast('Error parsing JSON: '+err.message,'error')}};r.readAsText(f)}
+function saveConfig(){if(!cfg)return;sortMobs(cfg);let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'}));a.download='genderbub.json';a.click();URL.revokeObjectURL(a.href);toast('Config saved','success')}
+function ruleExists(mid,ex=-1){return cfg.interactions.some((r,i)=>i!==ex&&r.mobId===mid)}
+function eggExists(mid,ex=-1){return cfg.eggRules.some((r,i)=>i!==ex&&r.mobId===mid)}
+function renderEditor(){let s=cfg.settings;document.getElementById('editorPanel').innerHTML=`
+<div class="section"><div class="section-title" onclick="toggleSection('basic')"><span class="section-toggle ${sectionCollapsed.basic?'collapsed':''}" id="toggle-basic">▼</span> Basic Settings</div><div class="section-content ${sectionCollapsed.basic?'collapsed':''}" id="content-basic">
+<div class="setting-row"><span class="setting-label">Male chance</span><div class="setting-control"><input type="number" id="maleChance" min="0" max="50" value="${s.maleChance??45}" onchange="updateNum('maleChance',this.value)"></div></div>
+<div class="setting-row"><span class="setting-label">Female chance</span><div class="setting-control"><input type="number" id="femaleChance" min="0" max="50" value="${s.femaleChance??45}" onchange="updateNum('femaleChance',this.value)"></div></div>
+<div class="setting-row"><span class="setting-label">Display radius</span><div class="setting-control"><input type="number" id="displayRadius" min="0" max="128" value="${s.displayRadius??24}" onchange="updateNum('displayRadius',this.value)"></div></div></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('breeding')"><span class="section-toggle ${sectionCollapsed.breeding?'collapsed':''}" id="toggle-breeding">▼</span> Breeding</div><div class="section-content ${sectionCollapsed.breeding?'collapsed':''}" id="content-breeding">
+<div class="checkbox-row"><input type="checkbox" id="allowMaleMaleBreed" ${s.allowMaleMaleBreed?'checked':''} onchange="updateBool('allowMaleMaleBreed',this.checked)"><label>Allow male + male breeding</label></div>
+<div class="checkbox-row"><input type="checkbox" id="allowFemaleFemaleBreed" ${s.allowFemaleFemaleBreed?'checked':''} onchange="updateBool('allowFemaleFemaleBreed',this.checked)"><label>Allow female + female breeding</label></div>
+<div class="checkbox-row"><input type="checkbox" id="allowSterileBreed" ${s.allowSterileBreed?'checked':''} onchange="updateBool('allowSterileBreed',this.checked)"><label>Allow sterile breeding</label></div></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('villagers')"><span class="section-toggle ${sectionCollapsed.villagers?'collapsed':''}" id="toggle-villagers">▼</span> Villagers</div><div class="section-content ${sectionCollapsed.villagers?'collapsed':''}" id="content-villagers">
+<div class="checkbox-row"><input type="checkbox" id="enableVillagers" ${s.enableVillagers!==false?'checked':''} onchange="updateBool('enableVillagers',this.checked)"><label>Enable villagers</label></div>
+<div class="checkbox-row"><input type="checkbox" id="keepVillagerGender" ${s.keepVillagerGender!==false?'checked':''} onchange="updateBool('keepVillagerGender',this.checked)"><label>Keep gender on conversion</label></div></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('client')"><span class="section-toggle ${sectionCollapsed.client?'collapsed':''}" id="toggle-client">▼</span> Client</div><div class="section-content ${sectionCollapsed.client?'collapsed':''}" id="content-client">
+<div class="checkbox-row"><input type="checkbox" id="requireScanner" ${s.requireScanner!==false?'checked':''} onchange="updateBool('requireScanner',this.checked)"><label>Require magnifying glass</label></div>
+<div class="checkbox-row"><input type="checkbox" id="hideWithJade" ${s.hideWithJade!==false?'checked':''} onchange="updateBool('hideWithJade',this.checked)"><label>Hide when Jade is present</label></div>
+<div class="checkbox-row"><input type="checkbox" id="syncConfigRules" ${s.syncConfigRules?'checked':''} onchange="updateBool('syncConfigRules',this.checked)"><label>Sync rules with server</label></div></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('auto')"><span class="section-toggle ${sectionCollapsed.auto?'collapsed':''}" id="toggle-auto">▼</span> Auto Scan</div><div class="section-content ${sectionCollapsed.auto?'collapsed':''}" id="content-auto">
+<div class="checkbox-row"><input type="checkbox" id="autoScanComplete" ${cfg.autoScanComplete?'checked':''} onchange="cfg.autoScanComplete=this.checked"><label>Auto scan completed</label></div></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('mobs')"><span class="section-toggle ${sectionCollapsed.mobs?'collapsed':''}" id="toggle-mobs">▼</span> Enabled Mobs</div><div class="section-content ${sectionCollapsed.mobs?'collapsed':''}" id="content-mobs">
+<div class="mobs-header"><div class="mobs-search"><input type="text" id="mobSearch" placeholder="Search mobs..." onkeyup="renderMobs()"></div><button class="mode-btn active" id="modeToggleBtn" onclick="toggleGroup()">Grouped</button><button class="expand-block-btn" onclick="toggleMobsExpand()">Expand</button></div>
+<div class="mobs-list" id="mobsList"></div><button class="add-btn" onclick="addCustomMob()" style="margin-top:10px">+ Add custom mob</button></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('rules')"><span class="section-toggle ${sectionCollapsed.rules?'collapsed':''}" id="toggle-rules">▼</span> Interaction Rules</div><div class="section-content ${sectionCollapsed.rules?'collapsed':''}" id="content-rules">
+<div class="rules-header"><div class="rules-search"><input type="text" id="rulesSearch" placeholder="Search rules by mob id..." onkeyup="renderRules()"></div><button class="expand-block-btn" onclick="toggleRulesExpand()">Expand</button></div>
+<div id="rulesContainer" class="rules-container"></div><button class="add-btn" onclick="addInteractionRule()" style="margin-top:10px">+ Add rule</button></div></div>
+<div class="section"><div class="section-title" onclick="toggleSection('eggs')"><span class="section-toggle ${sectionCollapsed.eggs?'collapsed':''}" id="toggle-eggs">▼</span> Egg Rules</div><div class="section-content ${sectionCollapsed.eggs?'collapsed':''}" id="content-eggs">
+<div class="eggs-header"><div class="eggs-search"><input type="text" id="eggsSearch" placeholder="Search egg rules by mob id..." onkeyup="renderEggs()"></div><button class="expand-block-btn" onclick="toggleEggsExpand()">Expand</button></div>
+<div id="eggsContainer" class="eggs-container"></div><button class="add-btn" onclick="addEggRule()" style="margin-top:10px">+ Add egg rule</button></div></div>
+`;renderMobs();renderRules();renderEggs()}
+function toggleMobsExpand(){let el=document.getElementById('mobsList');if(el)el.style.maxHeight=el.style.maxHeight==='none'?'550px':'none'}
+function toggleRulesExpand(){let el=document.getElementById('rulesContainer');if(el)el.classList.toggle('expanded')}
+function toggleEggsExpand(){let el=document.getElementById('eggsContainer');if(el)el.classList.toggle('expanded')}
+function renderMobs(){let s=(document.getElementById('mobSearch')?.value||'').toLowerCase(),en=cfg.settings.enabledMobs||[],go=cfg.settings.genderOnlyMobs||[],f=mobsList.filter(m=>m.toLowerCase().includes(s)),c=document.getElementById('mobsList');if(!c)return;if(!grouped){if(!f.length){c.innerHTML='<div style="padding:20px;text-align:center;opacity:0.5">No mobs found</div>';return}c.innerHTML=f.map(m=>`<div class="mob-item"><input type="checkbox" id="m_${m.replace(/[:.]/g,'_')}" ${en.includes(m)?'checked':''} onchange="toggleMob('${escape(m)}',this.checked)"><label style="${en.includes(m)?'':'opacity:0.6'}">${escape(m)}</label>${en.includes(m)?`<input type="checkbox" id="go_${m.replace(/[:.]/g,'_')}" ${go.includes(m)?'checked':''} onchange="toggleGenderOnly('${escape(m)}',this.checked)" style="width:auto;margin-left:auto"><label style="margin-left:0;font-size:0.9rem">Gender only</label>`:'<span style="margin-left:auto"></span>'}</div>`).join('');return}
+let g=groupMobs(f);if(Object.keys(g).length===0){c.innerHTML='<div style="padding:20px;text-align:center;opacity:0.5">No mobs found</div>';return}c.innerHTML=Object.entries(g).map(([mod,mobs])=>`<div class="mod-group"><div class="mod-header" onclick="toggleMod('${escape(mod)}')"><span class="mod-toggle ${modCollapsed[mod]?'collapsed':''}"></span><span>${escape(mod)} (${mobs.length})</span></div><div class="mod-mobs ${modCollapsed[mod]?'collapsed':''}">${mobs.map(m=>`<div class="mob-item"><input type="checkbox" id="m_${m.replace(/[:.]/g,'_')}" ${en.includes(m)?'checked':''} onchange="toggleMob('${escape(m)}',this.checked)"><label style="${en.includes(m)?'':'opacity:0.6'}">${escape(m)}</label>${en.includes(m)?`<input type="checkbox" id="go_${m.replace(/[:.]/g,'_')}" ${go.includes(m)?'checked':''} onchange="toggleGenderOnly('${escape(m)}',this.checked)" style="width:auto;margin-left:auto"><label class="gender-only-label-text" style="margin-left:0;font-size:0.9rem">Gender only</label>`:'<span style="margin-left:auto"></span>'}</div>`).join('')}</div></div>`).join('')}
+function renderRules(){let c=document.getElementById('rulesContainer');if(!c)return;let r=cfg.interactions||[],s=(document.getElementById('rulesSearch')?.value||'').toLowerCase(),f=r.filter(rl=>(rl.mobId||'').toLowerCase().includes(s));if(!f.length){c.innerHTML='<div style="padding:20px;text-align:center;opacity:0.5">No rules</div>';return}c.innerHTML=f.map((rule,idx)=>{let o=r.indexOf(rule);return`<div class="rule-item"><div class="rule-header"><input type="text" value="${escape(rule.mobId||'')}" placeholder="example: modname:mobname" onchange="updateRule(${o},this.value)"><button class="delete-btn" onclick="deleteRule(${o})">Delete</button></div><div class="rule-genders"><label><input type="checkbox" ${rule.genders?.includes('male')?'checked':''} onchange="updateRuleGender(${o},'male',this.checked)"> Male</label><label><input type="checkbox" ${rule.genders?.includes('female')?'checked':''} onchange="updateRuleGender(${o},'female',this.checked)"> Female</label><label><input type="checkbox" ${rule.genders?.includes('sterile')?'checked':''} onchange="updateRuleGender(${o},'sterile',this.checked)"> Sterile</label><label><input type="checkbox" ${rule.genders?.includes('any')?'checked':''} onchange="updateRuleGender(${o},'any',this.checked)"> Any</label></div><div class="rule-items">${(rule.itemIds||[]).map((it,ii)=>`<span class="item-tag"><span class="item-text" onclick="editItem(${o},${ii})">${escape(it)}</span><span class="item-delete" onclick="removeItem(${o},${ii})">✕</span></span>`).join('')}<button class="add-item-btn" onclick="addItem(${o})">+ Add item</button></div></div>`}).join('')}
+function renderEggs(){let c=document.getElementById('eggsContainer');if(!c)return;let e=cfg.eggRules||[],s=(document.getElementById('eggsSearch')?.value||'').toLowerCase(),f=e.filter(eg=>(eg.mobId||'').toLowerCase().includes(s));if(!f.length){c.innerHTML='<div style="padding:20px;text-align:center;opacity:0.5">No egg rules</div>';return}c.innerHTML=f.map((egg,idx)=>{let o=e.indexOf(egg);return`<div class="egg-item"><input type="text" value="${escape(egg.mobId||'')}" placeholder="example: modname:mobname" onchange="updateEggMob(${o},this.value)" style="flex:2"><div class="egg-genders"><label><input type="checkbox" ${egg.genders?.includes('male')?'checked':''} onchange="updateEggGender(${o},'male',this.checked)"> Male</label><label><input type="checkbox" ${egg.genders?.includes('female')?'checked':''} onchange="updateEggGender(${o},'female',this.checked)"> Female</label><label><input type="checkbox" ${egg.genders?.includes('sterile')?'checked':''} onchange="updateEggGender(${o},'sterile',this.checked)"> Sterile</label><label><input type="checkbox" ${egg.genders?.includes('any')?'checked':''} onchange="updateEggGender(${o},'any',this.checked)"> Any</label></div><button class="delete-btn" onclick="deleteEgg(${o})">Delete</button></div>`}).join('')}
+function toggleMob(id,ch){let en=cfg.settings.enabledMobs||[];if(ch){if(!en.includes(id))en.push(id);if(!mobsList.includes(id)){mobsList.push(id);mobsList.sort()}}else{cfg.settings.enabledMobs=en.filter(m=>m!==id);if(cfg.settings.genderOnlyMobs)cfg.settings.genderOnlyMobs=cfg.settings.genderOnlyMobs.filter(m=>m!==id)}renderMobs()}
+function toggleGenderOnly(id,ch){let go=cfg.settings.genderOnlyMobs||[];if(ch){if(!go.includes(id))go.push(id);if(!cfg.settings.enabledMobs.includes(id))cfg.settings.enabledMobs.push(id)}else cfg.settings.genderOnlyMobs=go.filter(m=>m!==id);renderMobs()}
+function addCustomMob(){let m=prompt('Enter mob id (example: minecraft:cow or modname:mobname):');if(!m)return;if(!cfg.settings.enabledMobs)cfg.settings.enabledMobs=[];if(!mobsList.includes(m)){mobsList.push(m);mobsList.sort()}if(!cfg.settings.enabledMobs.includes(m)){cfg.settings.enabledMobs.push(m);let md=modId(m);if(modCollapsed[md]===undefined)modCollapsed[md]=true;renderMobs()}else toast('Mob already exists','error')}
+function editItem(ri,ii){let n=prompt('Edit item id:',cfg.interactions[ri].itemIds[ii]);if(n){cfg.interactions[ri].itemIds[ii]=n;renderRules()}}
+function removeItem(ri,ii){cfg.interactions[ri].itemIds.splice(ii,1);renderRules()}
+function addItem(ri){let it=prompt('Enter item id:');if(it){if(!cfg.interactions[ri].itemIds)cfg.interactions[ri].itemIds=[];cfg.interactions[ri].itemIds.push(it);renderRules()}}
+function updateRule(idx,val){if(ruleExists(val,idx)){toast('Rule for this mob already exists!','error');renderRules();return}cfg.interactions[idx].mobId=val;renderRules()}
+function updateRuleGender(idx,g,ch){let r=cfg.interactions[idx];if(!r.genders)r.genders=[];if(ch){if(!r.genders.includes(g))r.genders.push(g)}else r.genders=r.genders.filter(x=>x!==g);renderRules()}
+function deleteRule(idx){cfg.interactions.splice(idx,1);renderRules()}
+function addInteractionRule(){let mid="modname:mobname";if(ruleExists(mid)){toast('Rule for this mob already exists!','error');return}cfg.interactions.push({mobId:mid,genders:["male","sterile"],itemIds:["modname:itemname"]});renderRules()}
+function updateEggMob(idx,val){if(eggExists(val,idx)){toast('Egg rule for this mob already exists!','error');renderEggs();return}cfg.eggRules[idx].mobId=val;renderEggs()}
+function updateEggGender(idx,g,ch){let e=cfg.eggRules[idx];if(!e.genders)e.genders=[];if(ch){if(!e.genders.includes(g))e.genders.push(g)}else e.genders=e.genders.filter(x=>x!==g);renderEggs()}
+function deleteEgg(idx){cfg.eggRules.splice(idx,1);renderEggs()}
+function addEggRule(){let mid="modname:mobname";if(eggExists(mid)){toast('Egg rule for this mob already exists!','error');return}cfg.eggRules.push({mobId:mid,genders:["male","sterile"]});renderEggs()}
+function updateNum(k,v){let n=parseInt(v);if(isNaN(n))n=0;if(k==='maleChance'||k==='femaleChance')n=Math.min(50,Math.max(0,n));if(k==='displayRadius')n=Math.min(128,Math.max(0,n));cfg.settings[k]=n}
+function updateBool(k,v){cfg.settings[k]=v}
+function escape(s){if(!s)return '';return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+window.toggleMod=toggleMod;window.toggleGroup=toggleGroup;window.toggleMobsExpand=toggleMobsExpand;window.toggleRulesExpand=toggleRulesExpand;window.toggleEggsExpand=toggleEggsExpand;window.toggleSection=toggleSection;window.toggleMob=toggleMob;window.toggleGenderOnly=toggleGenderOnly;window.addCustomMob=addCustomMob;window.updateNum=updateNum;window.updateBool=updateBool;window.updateRule=updateRule;window.updateRuleGender=updateRuleGender;window.deleteRule=deleteRule;window.addInteractionRule=addInteractionRule;window.updateEggMob=updateEggMob;window.updateEggGender=updateEggGender;window.deleteEgg=deleteEgg;window.addEggRule=addEggRule;window.editItem=editItem;window.removeItem=removeItem;window.addItem=addItem;window.renderMobs=renderMobs;window.renderRules=renderRules;window.renderEggs=renderEggs;
+let dropCard=document.querySelector('.upload-card');if(dropCard){dropCard.addEventListener('dragover',e=>{e.preventDefault();});dropCard.addEventListener('dragleave',()=>{});dropCard.addEventListener('drop',e=>{e.preventDefault();let f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.json'))loadConfig(f);else toast('Please upload a .json file','error');});}
+</script>
 </body>
 </html>
