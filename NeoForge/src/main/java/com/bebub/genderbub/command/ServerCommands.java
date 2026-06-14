@@ -29,6 +29,9 @@ public class ServerCommands {
                 .then(Commands.literal("reload")
                     .requires(source -> source.hasPermission(2))
                     .executes(ServerCommands::reload))
+                .then(Commands.literal("integration")
+                    .requires(source -> source.hasPermission(2))
+                    .executes(ServerCommands::integrationReload))
                 .then(Commands.literal("scan")
                     .requires(source -> source.hasPermission(2))
                     .executes(ServerCommands::scan))
@@ -235,6 +238,19 @@ public class ServerCommands {
             int interactionsCount = GenderConfig.getInteractionsCount();
             int eggRulesCount = GenderConfig.getEggRulesCount();
             ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.reload.synced", mobsCount, interactionsCount, eggRulesCount), true);
+            return 1;
+        } catch (Exception e) {
+            ctx.getSource().sendFailure(Component.translatable("genderbub.command.reload.failed", e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int integrationReload(CommandContext<CommandSourceStack> ctx) {
+        try {
+            GenderLoader.mergeDefaultFiles();
+            GenderLoader.loadCompatRules();
+            GenderLoader.loadRules();
+            ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), true);
             return 1;
         } catch (Exception e) {
             ctx.getSource().sendFailure(Component.translatable("genderbub.command.reload.failed", e.getMessage()));

@@ -43,6 +43,11 @@ public class GenderLoader {
     }
     
     public static void mergeDefaultFiles() {
+        try {
+            Files.createDirectories(COMPAT_DIR);
+            Files.createDirectories(RULES_DIR);
+        } catch (Exception ignored) {}
+        
         mergeFile("integration/compat/environmental.json", COMPAT_DIR.resolve("environmental.json"));
         mergeFile("integration/compat/iceandfire.json", COMPAT_DIR.resolve("iceandfire.json"));
         mergeFile("integration/compat/mca.json", COMPAT_DIR.resolve("mca.json"));
@@ -61,6 +66,8 @@ public class GenderLoader {
         try {
             String defaultJson = readResourceFile(resourcePath);
             if (defaultJson == null) return;
+            
+            Files.createDirectories(targetPath.getParent());
             
             if (!targetPath.toFile().exists()) {
                 Files.writeString(targetPath, defaultJson);
@@ -133,6 +140,8 @@ public class GenderLoader {
                 settings.addProperty("femaleChance", getIntOrDefault(settings, "femaleChance", defaultData.settings.femaleChance));
                 settings.addProperty("displayRadius", getIntWithBounds(settings, "displayRadius", defaultData.settings.displayRadius, 0, 128));
                 settings.addProperty("hideWithJade", getBooleanOrDefault(settings, "hideWithJade", defaultData.settings.hideWithJade));
+                settings.addProperty("requireScanner", getBooleanOrDefault(settings, "requireScanner", defaultData.settings.requireScanner));
+                settings.addProperty("syncConfigRules", getBooleanOrDefault(settings, "syncConfigRules", defaultData.settings.syncConfigRules));
                 settings.addProperty("allowMaleMaleBreed", getBooleanOrDefault(settings, "allowMaleMaleBreed", defaultData.settings.allowMaleMaleBreed));
                 settings.addProperty("allowFemaleFemaleBreed", getBooleanOrDefault(settings, "allowFemaleFemaleBreed", defaultData.settings.allowFemaleFemaleBreed));
                 settings.addProperty("allowSterileBreed", getBooleanOrDefault(settings, "allowSterileBreed", defaultData.settings.allowSterileBreed));
