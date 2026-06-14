@@ -17,6 +17,15 @@ public class GenderScanner {
     private static final Map<String, GenderLoader.ScanRule> RULES = new HashMap<>();
     private static boolean firstScanDone = false;
     
+    private static final Set<String> ICEANDFIRE_WHITELIST = new HashSet<>(Arrays.asList(
+        "iceandfire:fire_dragon",
+        "iceandfire:ice_dragon",
+        "iceandfire:lightning_dragon",
+        "iceandfire:hippogryph",
+        "iceandfire:amphithere",
+        "iceandfire:hippocampus"
+    ));
+    
     public static void loadRules(List<GenderLoader.ScanRule> rules) {
         RULES.clear();
         for (GenderLoader.ScanRule rule : rules) {
@@ -64,6 +73,14 @@ public class GenderScanner {
         for (String animal : filterAnimals(getAllMobs())) {
             if (!data.settings.enabledMobs.contains(animal)) {
                 data.settings.enabledMobs.add(animal);
+            }
+        }
+        
+        if (ModList.get().isLoaded("iceandfire")) {
+            for (String id : ICEANDFIRE_WHITELIST) {
+                if (!data.settings.enabledMobs.contains(id)) {
+                    data.settings.enabledMobs.add(id);
+                }
             }
         }
         

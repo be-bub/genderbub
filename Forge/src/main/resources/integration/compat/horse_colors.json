@@ -1,0 +1,55 @@
+{
+  "mobs": [
+    {
+      "mobId": "horse_colors:horse_felinoid",
+      "rules": [
+        {
+          "method": "isMale",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "isMale",
+          "expected": false,
+          "gender": "female"
+        }
+      ],
+      "sterileMethod": "isFertile",
+      "sterileInvert": true
+    },
+    {
+      "mobId": "horse_colors:donkey",
+      "rules": [
+        {
+          "method": "isMale",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "isMale",
+          "expected": false,
+          "gender": "female"
+        }
+      ],
+      "sterileMethod": "isFertile",
+      "sterileInvert": true
+    },
+    {
+      "mobId": "horse_colors:mule",
+      "rules": [
+        {
+          "method": "isMale",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "isMale",
+          "expected": false,
+          "gender": "female"
+        }
+      ],
+      "sterileMethod": "isFertile",
+      "sterileInvert": true
+    }
+  ]
+}

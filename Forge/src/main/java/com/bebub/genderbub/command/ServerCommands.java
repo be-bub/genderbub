@@ -225,7 +225,7 @@ public class ServerCommands {
         GenderLoader.copyDefaultFiles();
         GenderLoader.loadCompatRules();
         GenderLoader.loadRules();
-        ctx.getSource().sendSuccess(() -> Component.literal("Integration rules reloaded and updated from mod files"), true);
+        ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), true);
         return 1;
     }
 

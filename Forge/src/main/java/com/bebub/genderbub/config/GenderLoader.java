@@ -44,6 +44,7 @@ public class GenderLoader {
     
     public static void mergeDefaultFiles() {
         mergeFile("integration/compat/environmental.json", COMPAT_DIR.resolve("environmental.json"));
+        mergeFile("integration/compat/horse_colors.json", COMPAT_DIR.resolve("horse_colors.json"));
         mergeFile("integration/compat/iceandfire.json", COMPAT_DIR.resolve("iceandfire.json"));
         mergeFile("integration/compat/mca.json", COMPAT_DIR.resolve("mca.json"));
         mergeFile("integration/compat/naturalist.json", COMPAT_DIR.resolve("naturalist.json"));
@@ -322,6 +323,8 @@ public class GenderLoader {
         public List<CompatRule> rules;
         public String forceGender;
         public int sterileChance = -1;
+        public String sterileMethod;
+        public boolean sterileInvert;
         public ColorConfig colors;
     }
     
