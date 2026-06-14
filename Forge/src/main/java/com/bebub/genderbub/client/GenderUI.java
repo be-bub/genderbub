@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.LivingEntity;
 
 public class GenderUI {
@@ -105,6 +106,11 @@ public class GenderUI {
     }
     
     private static ResourceLocation getGenderIcon(LivingEntity entity) {
+        boolean isBaby = entity instanceof AgeableMob && ((AgeableMob) entity).isBaby();
+        if (isBaby) {
+            return null;
+        }
+        
         String gender = GenderCore.getGender(entity);
         if (gender.equals("male")) return MALE_ICON;
         if (gender.equals("female")) return FEMALE_ICON;

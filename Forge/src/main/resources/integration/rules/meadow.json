@@ -1,0 +1,30 @@
+{
+  "mobs": [
+    {
+      "mobId": "meadow:water_buffalo",
+      "interactionRule": {
+        "genders": [
+          "male",
+          "sterile"
+        ],
+        "items": [
+          "minecraft:bucket",
+          "meadow:wooden_bucket"
+        ]
+      }
+    },
+    {
+      "mobId": "meadow:wooly_cow",
+      "interactionRule": {
+        "genders": [
+          "male",
+          "sterile"
+        ],
+        "items": [
+          "minecraft:bucket",
+          "meadow:wooden_bucket"
+        ]
+      }
+    }
+  ]
+}

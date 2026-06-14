@@ -1,19 +1,10 @@
 package com.bebub.genderbub.config;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import java.util.Random;
 
 public class GenderMatcher {
     
     private static final Random RANDOM = new Random();
-    
-    public static boolean isScannerItem(Item item) {
-        if (item == null) return false;
-        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-        return id != null && id.toString().equals("genderbub:magnifying_glass");
-    }
     
     public static String[] getRandomGenderWithSterile(int maleChance, int femaleChance) {
         int male = Math.min(maleChance, 50);
@@ -35,15 +26,12 @@ public class GenderMatcher {
         if (roll < male) {
             return new String[]{"male", "false"};
         }
-        
         if (roll < male + maleSterile) {
             return new String[]{"male", "true"};
         }
-        
         if (roll < male + maleSterile + female) {
             return new String[]{"female", "false"};
         }
-        
         return new String[]{"female", "true"};
     }
 }

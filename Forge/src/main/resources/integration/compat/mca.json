@@ -1,0 +1,24 @@
+{
+  "mobs": [
+    {
+      "mobId": "mca:male_villager",
+      "forceGender": "male",
+      "sterileChance": 0
+    },
+    {
+      "mobId": "mca:female_villager",
+      "forceGender": "female",
+      "sterileChance": 0
+    },
+    {
+      "mobId": "mca:male_zombie_villager",
+      "forceGender": "male",
+      "sterileChance": 0
+    },
+    {
+      "mobId": "mca:female_zombie_villager",
+      "forceGender": "female",
+      "sterileChance": 0
+    }
+  ]
+}

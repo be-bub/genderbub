@@ -1,0 +1,24 @@
+{
+  "mobs": [
+    {
+      "mobId": "naturalist:lion",
+      "rules": [
+        {
+          "method": "isBaby",
+          "expected": true,
+          "gender": "baby"
+        },
+        {
+          "method": "hasMane",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "hasMane",
+          "expected": false,
+          "gender": "female"
+        }
+      ]
+    }
+  ]
+}

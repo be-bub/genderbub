@@ -26,6 +26,9 @@ public class ServerCommands {
                 .then(Commands.literal("reload")
                     .requires(source -> source.hasPermission(2))
                     .executes(ServerCommands::reload))
+                .then(Commands.literal("integration")
+                    .requires(source -> source.hasPermission(2))
+                    .executes(ServerCommands::integrationReload))
                 .then(Commands.literal("scan")
                     .requires(source -> source.hasPermission(2))
                     .executes(ServerCommands::scan))
@@ -215,6 +218,14 @@ public class ServerCommands {
             GenderConfig.getEnabledMobs().size(), 
             GenderConfig.getInteractionsCount(), 
             GenderConfig.getEggRulesCount()), true);
+        return 1;
+    }
+
+    private static int integrationReload(CommandContext<CommandSourceStack> ctx) {
+        GenderLoader.copyDefaultFiles();
+        GenderLoader.loadCompatRules();
+        GenderLoader.loadRules();
+        ctx.getSource().sendSuccess(() -> Component.literal("Integration rules reloaded and updated from mod files"), true);
         return 1;
     }
 

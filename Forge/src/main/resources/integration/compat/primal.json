@@ -1,0 +1,24 @@
+{
+  "mobs": [
+    {
+      "mobId": "primal:lion",
+      "rules": [
+        {
+          "method": "isBaby",
+          "expected": true,
+          "gender": "baby"
+        },
+        {
+          "method": "isManeless",
+          "expected": false,
+          "gender": "male"
+        },
+        {
+          "method": "isManeless",
+          "expected": true,
+          "gender": "female"
+        }
+      ]
+    }
+  ]
+}

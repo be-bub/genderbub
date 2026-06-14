@@ -1,6 +1,8 @@
 package com.bebub.genderbub;
 
+import com.bebub.genderbub.compat.GenderAddon;
 import com.bebub.genderbub.config.GenderConfig;
+import com.bebub.genderbub.config.GenderScanner;
 import com.bebub.genderbub.item.GenderScannerItem;
 import com.bebub.genderbub.item.GenderSticksItem;
 import com.bebub.genderbub.network.GenderNetwork;
@@ -55,6 +57,8 @@ public class GenderMod {
         
         MinecraftForge.EVENT_BUS.register(GenderEvents.class);
         MinecraftForge.EVENT_BUS.register(GenderConversion.class);
+        MinecraftForge.EVENT_BUS.register(new GenderAddon());
+        MinecraftForge.EVENT_BUS.register(new GenderScanner());
         
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::clientSetup);

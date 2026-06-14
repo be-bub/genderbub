@@ -1,0 +1,11 @@
+{
+  "mobs": [
+    {
+      "mobId": "naturalist:duck",
+      "eggRule": [
+        "male",
+        "sterile"
+      ]
+    }
+  ]
+}

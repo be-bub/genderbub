@@ -1,0 +1,52 @@
+{
+  "mobs": [
+    {
+      "mobId": "iceandfire:fire_dragon",
+      "rules": [
+        {
+          "method": "isMale",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "isMale",
+          "expected": false,
+          "gender": "female"
+        }
+      ],
+      "sterileChance": 0
+    },
+    {
+      "mobId": "iceandfire:ice_dragon",
+      "rules": [
+        {
+          "method": "isMale",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "isMale",
+          "expected": false,
+          "gender": "female"
+        }
+      ],
+      "sterileChance": 0
+    },
+    {
+      "mobId": "iceandfire:lightning_dragon",
+      "rules": [
+        {
+          "method": "isMale",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "isMale",
+          "expected": false,
+          "gender": "female"
+        }
+      ],
+      "sterileChance": 0
+    }
+  ]
+}

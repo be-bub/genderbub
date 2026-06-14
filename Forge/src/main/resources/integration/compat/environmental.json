@@ -1,0 +1,19 @@
+{
+  "mobs": [
+    {
+      "mobId": "environmental:deer",
+      "rules": [
+        {
+          "method": "hasAntlers",
+          "expected": true,
+          "gender": "male"
+        },
+        {
+          "method": "hasAntlers",
+          "expected": false,
+          "gender": "female"
+        }
+      ]
+    }
+  ]
+}
