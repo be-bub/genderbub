@@ -222,7 +222,7 @@ public class ServerCommands {
     }
 
     private static int integrationReload(CommandContext<CommandSourceStack> ctx) {
-        GenderLoader.copyDefaultFiles();
+        GenderLoader.mergeDefaultFiles();
         GenderLoader.loadCompatRules();
         GenderLoader.loadRules();
         ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), true);
