@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BUB Integration Editor</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm2 4v2h10V7H7zm0 4v2h10v-2H7zm0 4v2h7v-2H7z'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0e;color:#e1e3e6;min-height:100vh;display:flex;flex-direction:column;font-size:16px}
+        ::-webkit-scrollbar{width:8px;height:8px}
+        ::-webkit-scrollbar-track{background:#1a1a1f;border-radius:4px}
+        ::-webkit-scrollbar-thumb{background:#3a3a42;border-radius:4px}
+        ::-webkit-scrollbar-thumb:hover{background:#50505c}
+        .falling-symbols{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+        .symbol{position:absolute;font-size:18px;opacity:0.06;pointer-events:none;animation:fall linear infinite;color:#a0a4b0}
+        @keyframes fall{0%{transform:translateY(-100vh) rotate(0deg)}100%{transform:translateY(100vh) rotate(360deg)}}
+        .content{position:relative;z-index:1;flex:1;display:flex;flex-direction:column}
+        .header{padding:14px 28px;border-bottom:1px solid #1f1f24;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;background:#0f0f12cc;backdrop-filter:blur(10px)}
+        .header-left h1{font-size:1.6rem;font-weight:600;background:linear-gradient(135deg,#e1e3e6,#b0b3bc);-webkit-background-clip:text;background-clip:text;color:transparent;cursor:pointer}
+        .header-left h1:hover{opacity:0.7}
+        .links{display:flex;gap:10px;align-items:center}
+        .link-btn{padding:6px 14px;border-radius:6px;text-decoration:none;font-size:.85rem;font-weight:500;height:36px;display:inline-flex;align-items:center;gap:6px;background:#1a1a1f;border:none;color:#b0b3bc;transition:all 0.3s ease;position:relative;overflow:hidden;z-index:1}
+        .link-btn::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;transform:scaleX(0);transition:transform 0.3s ease;transform-origin:var(--origin-x, left);z-index:-1}
+        .link-btn:hover::before{transform:scaleX(1)}
+        .link-btn:hover .download-count,.link-btn:hover{color:#fff}
+        .link-btn.modrinth::before{background:#1bd96a}
+        .link-btn.curseforge::before{background:#f16436}
+        .link-btn.github::before{background:#ffffff}
+        .link-btn.github:hover{color:#0a0a0e}
+        .link-btn.patreon::before{background:#ffffff}
+        .link-btn.patreon:hover{color:#0a0a0e}
+        .download-count{font-size:0.85rem;background:transparent;padding:0;border-radius:0;color:#7c7f8c;margin-left:4px;font-weight:400;transition:color 0.3s ease}
+
+        .main-container{display:flex;gap:24px;padding:20px 28px;flex:1;min-height:0}
+        .file-sidebar{width:260px;flex-shrink:0;background:#0f0f12;border-radius:12px;border:1px solid #2a2a30;display:flex;flex-direction:column;overflow:hidden}
+        .file-sidebar-header{padding:12px 16px;border-bottom:1px solid #2a2a30;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+        .file-sidebar-header button{padding:4px 12px;font-size:0.75rem}
+        .file-list{flex:1;overflow-y:auto;padding:8px}
+        .file-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:6px;cursor:pointer;margin-bottom:4px;background:#131318;border:1px solid #2a2a30}
+        .file-item.active{background:#25252c;border-color:#3b82f6}
+        .file-item:hover{background:#1a1a1f}
+        .file-name{flex:1;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .file-name:hover{color:#3b82f6}
+        .file-actions button{background:transparent;border:none;color:#7c7f8c;cursor:pointer;font-size:14px;padding:2px 4px}
+        .file-actions .delete-btn:hover{color:#f23f42}
+        
+        .editor-area{flex:1;display:flex;gap:24px;flex-wrap:wrap;min-width:0}
+        .editor-panel{flex:1;min-width:350px;overflow-y:auto;max-height:calc(100vh - 120px)}
+        .json-preview{width:380px;flex-shrink:0;background:#0a0a0e;border-radius:12px;border:1px solid #2a2a30;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 120px);position:sticky;top:20px}
+        .json-header{padding:12px 16px;background:#131318;border-bottom:1px solid #2a2a30;font-weight:600;font-size:0.9rem}
+        .json-content{flex:1;overflow:auto;padding:16px}
+        .json-content pre{margin:0;font-family:'Monaco','Menlo','Courier New',monospace;font-size:12px;color:#e1e3e6;white-space:pre-wrap;word-wrap:break-word}
+        
+        .btn{padding:8px 16px;border-radius:6px;border:1px solid #2a2a30;background:#1a1a1f;color:#e1e3e6;cursor:pointer;font-size:0.85rem;transition:0.2s;height:32px}
+        .btn:hover{background:#25252c;border-color:#2a2a30}
+        .btn-danger{color:#f23f42}
+        .btn-danger:hover{border-color:#f23f42}
+        .btn-sm{padding:4px 12px;font-size:0.75rem;height:32px}
+        .btn-active{background:#3b82f6;border-color:#3b82f6;color:white;height:32px}
+        .btn-active:hover{background:#2563eb}
+
+        .rule-row .btn-sm{width:32px;height:29px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:#3a1a1a;border:1px solid #f23f42;color:#f23f42;font-size:16px;font-weight:bold;cursor:pointer;transition:0.2s}
+        .rule-row .btn-sm:hover{background:#5a2a2a;border-color:#ff6666;color:#ff6666}
+
+        .flex-row .btn-sm{height:29px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:#3a1a1a;border:1px solid #f23f42;color:#f23f42;font-size:0.75rem;cursor:pointer;transition:0.2s}
+        .flex-row .btn-sm:hover{background:#5a2a2a;border-color:#ff6666;color:#ff6666}
+
+        .btn-danger.btn-sm{height:29px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #f23f42;background:#3a1a1a;color:#f23f42}
+        .btn-danger.btn-sm:hover{background:#5a2a2a;border-color:#ff6666;color:#ff6666}
+
+        .mode-btn{padding:6px 14px;border-radius:20px;border:1px solid #3a3a42;background:#1a1a1f;color:#b0b3bc;cursor:pointer;font-size:0.75rem;font-weight:500;transition:all 0.2s ease;height:32px}
+        .mode-btn:hover{background:#25252c;border-color:#3b82f6;color:#e1e3e6}
+        .mode-btn.active{background:#3b82f6;border-color:#3b82f6;color:white}
+        .mode-btn.active:hover{background:#2563eb}
+
+        .gender-btn{padding:6px 20px;border-radius:20px;border:1px solid #3a3a42;background:#1a1a1f;cursor:pointer;transition:0.2s;color:#b0b3bc;font-weight:500;height:32px}
+        .gender-btn:hover{background:#25252c;border-color:#3b82f6;color:#e1e3e6}
+        .gender-btn.active{background:#3b82f6;border-color:#3b82f6;color:white}
+        .gender-btn.active:hover{background:#2563eb}
+        
+        .file-name-bar{padding:12px 16px;background:#131318;border:1px solid #2a2a30;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+        .file-name-bar span{font-weight:600;color:#b0b3bc}
+        .file-name-bar input{flex:1;padding:8px 12px;border-radius:6px;border:1px solid #2a2a30;background:#0f0f12;color:#e1e3e6;font-size:0.9rem}
+        
+        .mob-card{padding:16px;border:1px solid #2a2a30;border-radius:8px;margin-bottom:16px;background:#131318}
+        .mob-header{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+        .mob-header input{flex:2;padding:8px 12px;border-radius:6px;border:1px solid #2a2a30;background:#0f0f12;color:#e1e3e6}
+        .rule-row{padding:10px;background:#0f0f12;border-radius:6px;margin-bottom:10px}
+        .flex-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+        .flex-row input,.flex-row select{padding:6px 10px;border-radius:6px;border:1px solid #2a2a30;background:#0f0f12;color:#e1e3e6}
+        .flex-row input{flex:1}
+        .button-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+        .section-title{font-weight:600;margin-bottom:10px;margin-top:12px;color:#b0b3bc;font-size:1rem}
+        .info-text{font-size:0.85rem;color:#9aa0ae;margin-top:8px;padding:8px 12px;background:#0a0a0e;border-radius:6px;line-height:1.5;border-left:3px solid #3b82f6}
+        .info-text strong{color:#3b82f6}
+        .warning-text{font-size:0.85rem;color:#c4a000;margin-top:8px;padding:8px 12px;background:#1a1800;border-radius:6px;line-height:1.5;border-left:3px solid #e6b800}
+        .warning-text strong{color:#e6b800}
+        
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:1000;padding:12px 24px;border-radius:40px;font-size:0.85rem;font-weight:500;box-shadow:0 6px 16px rgba(0,0,0,0.4);pointer-events:none;animation:slideUp 0.2s ease forwards}
+        @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+        .toast-success{background:#1a3a1a;color:#6fcf97;border:1px solid #2ecc71}
+        .toast-error{background:#3a1a1a;color:#f23f42;border:1px solid #f23f42}
+        
+        @media(max-width:900px){.main-container{flex-direction:column}.file-sidebar{width:100%}.json-preview{width:100%;position:static;height:400px;margin-top:20px}}
+    </style>
+</head>
+<body>
+<div class="falling-symbols" id="fallingSymbols"></div>
+<div class="content">
+    <div class="header">
+        <div class="header-left">
+            <h1 onclick="location.href='index.html'">BUB Integration Editor</h1>
+        </div>
+        <div class="links">
+            <a href="https://modrinth.com/mod/genderbub" target="_blank" class="link-btn modrinth" id="modrinthLink">Modrinth <span id="modrinthCount" class="download-count">—</span></a>
+            <a href="https://www.curseforge.com/minecraft/mc-mods/genderbub" target="_blank" class="link-btn curseforge" id="curseforgeLink">CurseForge <span id="curseforgeCount" class="download-count">—</span></a>
+            <a href="https://github.com/be-bub/genderbub" target="_blank" class="link-btn github">GitHub</a>
+            <a href="https://www.patreon.com/cw/be_bub/membership" target="_blank" class="link-btn patreon">Patreon</a>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="file-sidebar">
+            <div class="file-sidebar-header">
+                <span>Compat Files</span>
+                <button class="btn btn-sm" onclick="createNewFile()">+ New</button>
+            </div>
+            <div class="file-list" id="fileList"></div>
+            <div style="padding:12px;border-top:1px solid #2a2a30; display:flex; gap:8px; flex-direction:column">
+                <button class="btn" onclick="openJsonFile()">Open JSON file</button>
+                <button class="btn" onclick="downloadAllZip()">Download all (ZIP)</button>
+            </div>
+        </div>
+        
+        <div class="editor-area">
+            <div class="editor-panel" id="editorPanel"></div>
+            <div class="json-preview">
+                <div class="json-header">JSON Preview</div>
+                <div class="json-content">
+                    <pre id="jsonPreview">Loading...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+let symbols=['0','1','2','3','4','5','6','7','8','9','♂','♀','{','}','[',']',':','"',',','<','>','/','?',';','|','=','+','-','_','(',')','*','&','^','%','$','#','@','!','~','`'];
+let files = {};
+let currentFile = null;
+let nextFileName = 1;
+let mobCounter = 1;
+
+const emptyTemplate = { mobs: [] };
+
+function formatDownloads(num) {
+    if (num === undefined || num === null) return "—";
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) {
+        let thousands = num / 1000;
+        if (thousands >= 10) return Math.round(thousands) + 'K';
+        return thousands.toFixed(1).replace(/\.0$/, '') + 'K';
+    }
+    return Math.round(num / 10) * 10;
+}
+
+async function fetchDownloadCounts() {
+    try {
+        const modrinthRes = await fetch('https://api.modrinth.com/v2/project/genderbub');
+        if (modrinthRes.ok) {
+            const data = await modrinthRes.json();
+            document.getElementById('modrinthCount').innerText = formatDownloads(data.downloads || 0);
+        }
+    } catch(e) {}
+    try {
+        const cfRes = await fetch('https://api.cfwidget.com/minecraft/mc-mods/genderbub');
+        if (cfRes.ok) {
+            const data = await cfRes.json();
+            document.getElementById('curseforgeCount').innerText = formatDownloads(data.downloads?.total || 0);
+        }
+    } catch(e) {}
+}
+
+function createFallingSymbols(){
+    let c=document.getElementById('fallingSymbols');
+    if(!c)return;
+    c.innerHTML='';
+    let n=window.innerWidth<768?80:150;
+    for(let i=0;i<n;i++){
+        let s=document.createElement('div');
+        s.className='symbol';
+        s.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+        s.style.fontSize=(12+Math.random()*10)+'px';
+        s.style.left=Math.random()*100+'%';
+        s.style.animationDuration=8+Math.random()*12+'s';
+        s.style.animationDelay=Math.random()*20+'s';
+        s.style.opacity=0.04+Math.random()*0.05;
+        c.appendChild(s);
+    }
+}
+
+function toast(msg,type='info'){
+    let t=document.createElement('div');
+    t.className=`toast toast-${type}`;
+    t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>{
+        t.style.opacity='0';
+        t.style.transition='opacity 0.2s';
+        setTimeout(()=>t.remove(),200);
+    },2800);
+}
+
+function updateJsonPreview(){
+    let previewDiv=document.getElementById('jsonPreview');
+    if(!previewDiv) return;
+    if(currentFile && files[currentFile]){
+        try{
+            previewDiv.textContent=JSON.stringify(files[currentFile],null,2);
+        }catch(e){
+            previewDiv.textContent='Error: '+e.message;
+        }
+    }else{
+        previewDiv.textContent='No file selected';
+    }
+}
+
+function renderFileList(){
+    let container = document.getElementById('fileList');
+    let fileNames = Object.keys(files).sort();
+    if(fileNames.length === 0){
+        container.innerHTML = '<div style="padding:20px;text-align:center;color:#7c7f8c">No files<br>Click "New" to create</div>';
+        return;
+    }
+    container.innerHTML = fileNames.map(fname => {
+        let isActive = currentFile === fname;
+        return `<div class="file-item ${isActive ? 'active' : ''}" onclick="switchFile('${escape(fname)}')">
+            <div class="file-name">${escape(fname)}</div>
+            <div class="file-actions">
+                <button class="delete-btn" onclick="event.stopPropagation();deleteFile('${escape(fname)}')">del</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function switchFile(fileName){
+    currentFile = fileName;
+    renderFileList();
+    renderEditor();
+}
+
+function createNewFile(){
+    let fullName = "compat_" + nextFileName;
+    nextFileName++;
+    if(files[fullName]) fullName = "compat_" + Date.now();
+    files[fullName] = JSON.parse(JSON.stringify(emptyTemplate));
+    currentFile = fullName;
+    renderFileList();
+    renderEditor();
+    toast(`Created ${fullName}`, "success");
+}
+
+function deleteFile(fileName){
+    if(confirm(`Delete ${fileName}?`)){
+        delete files[fileName];
+        let fileNames = Object.keys(files);
+        if(fileNames.length > 0){
+            currentFile = fileNames[0];
+        } else {
+            currentFile = null;
+            document.getElementById('editorPanel').innerHTML = '<div style="padding:40px;text-align:center;color:#9aa0ae">No files. Click "New" to create one.</div>';
+            updateJsonPreview();
+        }
+        renderFileList();
+        if(currentFile) renderEditor();
+        toast(`Deleted ${fileName}`, "info");
+    }
+}
+
+function openJsonFile(){
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = function(e){
+        let file = e.target.files[0];
+        if(!file) return;
+        let reader = new FileReader();
+        reader.onload = function(ev){
+            try{
+                let content = JSON.parse(ev.target.result);
+                let name = file.name.replace('.json', '');
+                if(files[name]){
+                    if(!confirm(`File "${name}" already exists. Overwrite?`)) return;
+                }
+                files[name] = content;
+                if(!currentFile) currentFile = name;
+                renderFileList();
+                renderEditor();
+                toast(`Loaded ${name}`, "success");
+            }catch(err){
+                toast("Invalid JSON file", "error");
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function renderEditor(){
+    if(!currentFile || !files[currentFile]) return;
+    let data = files[currentFile];
+    let mobs = data.mobs || [];
+    
+    let html = `<div class="file-name-bar">
+        <span>Filename:</span>
+        <input type="text" id="currentFileName" value="${escape(currentFile)}" onchange="renameCurrentFile(this.value)">
+    </div>
+    <button class="btn" style="margin-bottom:16px" onclick="addMob()">+ Add Mob</button>`;
+    
+    mobs.forEach((mob, idx) => {
+        let forceGender = mob.forceGender || '';
+        let rules = mob.rules || [];
+        let sterileMethod = mob.sterileMethod;
+        let sterileInvert = mob.sterileInvert === true;
+        let sterileChance = mob.sterileChance;
+        
+        let isForceGender = (forceGender !== '');
+        
+        let sterileMode = 'default';
+        if(sterileChance === 0 && (sterileMethod === undefined || sterileMethod === '')) {
+            sterileMode = 'disable';
+        } else if(sterileMethod !== undefined && sterileMethod !== '') {
+            sterileMode = 'method';
+        }
+        
+        html += `<div class="mob-card">
+            <div class="mob-header">
+                <input type="text" placeholder="modname:entity" value="${escape(mob.mobId || '')}" onchange="updateMob(${idx}, 'mobId', this.value)">
+                <button class="btn btn-danger btn-sm" onclick="deleteMob(${idx})">Delete</button>
+            </div>
+            
+            <div class="section-title">Gender Detection</div>
+            <div class="button-group">
+                <button class="mode-btn ${isForceGender ? 'active' : ''}" onclick="setForceGender(${idx})">Force gender</button>
+                <button class="mode-btn ${!isForceGender ? 'active' : ''}" onclick="setMethodGender(${idx})">Detect by method</button>
+            </div>`;
+        
+        if(forceGender){
+            html += `<div class="flex-row">
+                <span style="min-width:100px">Force gender:</span>
+                <div class="gender-switch">
+                    <button class="gender-btn ${forceGender === 'male' ? 'active' : ''}" onclick="updateForceGenderValue(${idx}, 'male')">Male</button>
+                    <button class="gender-btn ${forceGender === 'female' ? 'active' : ''}" onclick="updateForceGenderValue(${idx}, 'female')">Female</button>
+                </div>
+            </div>`;
+            html += `<div class="info-text"><strong>How it works:</strong> The mob will always have the selected gender, ignoring any gender-detecting methods from the mod.</div>`;
+        } else {
+            if(rules.length === 0){
+                rules = [{method: "", expected: true, gender: "male"}];
+                mob.rules = rules;
+            }
+            
+            let babyRuleIndex = rules.findIndex(r => r.gender === 'baby');
+            let hasBaby = babyRuleIndex !== -1;
+            
+            let sortedRules = [...rules];
+            if(hasBaby && babyRuleIndex !== 0){
+                let babyRule = sortedRules.splice(babyRuleIndex, 1)[0];
+                sortedRules.unshift(babyRule);
+                if(JSON.stringify(sortedRules) !== JSON.stringify(rules)){
+                    mob.rules = sortedRules;
+                    rules = sortedRules;
+                }
+            }
+            
+            for(let i = 0; i < rules.length; i++){
+                let rule = rules[i];
+                let expectedValue = typeof rule.expected === 'string' ? rule.expected : String(rule.expected);
+                
+                html += `<div class="rule-row">
+                    <div class="flex-row">
+                        <input type="text" placeholder="Method name" value="${escape(rule.method || '')}" style="flex:2" onchange="updateRule(${idx}, ${i}, 'method', this.value)">
+                        <select onchange="updateRuleExpected(${idx}, ${i}, this.value)" style="width:100px">
+                            <option value="true" ${expectedValue === 'true' ? 'selected' : ''}>true</option>
+                            <option value="false" ${expectedValue === 'false' ? 'selected' : ''}>false</option>
+                            <option value="custom" ${!['true','false'].includes(expectedValue) ? 'selected' : ''}>custom</option>
+                        </select>
+                        ${!['true','false'].includes(expectedValue) ? `<input type="text" placeholder="custom value" value="${escape(expectedValue)}" style="width:100px" onchange="updateRuleCustomExpected(${idx}, ${i}, this.value)">` : ''}
+                        <select onchange="updateRuleGender(${idx}, ${i}, this.value)" style="width:130px">
+                            <option value="male" ${rule.gender === 'male' ? 'selected' : ''}>Male</option>
+                            <option value="female" ${rule.gender === 'female' ? 'selected' : ''}>Female</option>
+                            <option value="baby" ${rule.gender === 'baby' ? 'selected' : ''} ${hasBaby && rule.gender !== 'baby' ? 'disabled' : ''}>Baby (no icon)</option>
+                        </select>
+                        <button class="btn btn-sm" onclick="removeRule(${idx}, ${i})">×</button>
+                    </div>
+                </div>`;
+            }
+            
+            html += `<button class="btn btn-sm" style="margin-top:5px" onclick="addRule(${idx})">+ Add Rule</button>`;
+            
+            html += `<div class="info-text"><strong>How it works:</strong> The mod calls the specified method on the entity. If the method returns the expected value (true/false), the entity is assigned the selected gender.<br>
+            <strong>Baby gender:</strong> We assign "baby" tag when the mob only develops gender upon growing up. This hides the gender icon on babies to avoid confusion until the mob matures.<br>
+            <strong>Finding the right method:</strong> Check existing compat files or ask AI to analyze the mod's code.</div>`;
+        }
+        
+        html += `<div class="section-title">Sterile Settings</div>
+            <div class="button-group">
+                <button class="mode-btn ${sterileMode === 'default' ? 'active' : ''}" onclick="setSterileDefault(${idx})">Default</button>
+                <button class="mode-btn ${sterileMode === 'disable' ? 'active' : ''}" onclick="setSterileDisable(${idx})">Disable</button>
+                <button class="mode-btn ${sterileMode === 'method' ? 'active' : ''}" onclick="setSterileMethod(${idx})">By method</button>
+            </div>`;
+        
+        if(sterileMode === 'default'){
+            html += `<div class="info-text"><strong>Default:</strong> Uses the mod's default breeding rules.</div>`;
+        } else if(sterileMode === 'disable'){
+            html += `<div class="info-text"><strong>Disable sterility:</strong> The entity can breed normally (removes sterility restrictions).</div>`;
+        } else if(sterileMode === 'method'){
+            let currentMethod = (sterileMethod !== undefined && sterileMethod !== '') ? sterileMethod : 'example_method';
+            html += `<div class="flex-row" style="margin-top:8px; padding:10px; background:#0f0f12; border-radius:6px;">
+                <span style="min-width:100px">Method name:</span>
+                <input type="text" placeholder="e.g., isFertile, isSterile" value="${escape(currentMethod)}" style="width:200px" onchange="updateSterileMethodField(${idx}, this.value)">
+                <select onchange="updateSterileInvertField(${idx}, this.value === 'true')" style="width:150px">
+                    <option value="false" ${!sterileInvert ? 'selected' : ''}>Direct</option>
+                    <option value="true" ${sterileInvert ? 'selected' : ''}>Invert</option>
+                </select>
+                <button class="btn btn-sm" onclick="clearSterileMethodField(${idx})">Clear</button>
+            </div>`;
+            html += `<div class="warning-text"><strong>When to use this:</strong> Use this option only if the mod has a similar sterility system and you need to synchronize parameters with it.<br>
+            <strong>Otherwise:</strong> Either disable sterility completely or keep the default value.</div>`;
+        }
+        
+        html += `</div>`;
+    });
+    document.getElementById('editorPanel').innerHTML = html;
+    updateJsonPreview();
+}
+
+function updateForceGenderValue(idx, value){
+    if(!currentFile || !files[currentFile]) return;
+    files[currentFile].mobs[idx].forceGender = value;
+    renderEditor();
+}
+
+function updateRuleExpected(idx, ruleIdx, value){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs[idx].rules) files[currentFile].mobs[idx].rules = [];
+    if(!files[currentFile].mobs[idx].rules[ruleIdx]) files[currentFile].mobs[idx].rules[ruleIdx] = {};
+    
+    if(value === 'true') files[currentFile].mobs[idx].rules[ruleIdx].expected = true;
+    else if(value === 'false') files[currentFile].mobs[idx].rules[ruleIdx].expected = false;
+    else files[currentFile].mobs[idx].rules[ruleIdx].expected = value;
+    
+    renderEditor();
+}
+
+function updateRuleCustomExpected(idx, ruleIdx, value){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs[idx].rules) files[currentFile].mobs[idx].rules = [];
+    if(!files[currentFile].mobs[idx].rules[ruleIdx]) files[currentFile].mobs[idx].rules[ruleIdx] = {};
+    
+    if(value === 'true') files[currentFile].mobs[idx].rules[ruleIdx].expected = true;
+    else if(value === 'false') files[currentFile].mobs[idx].rules[ruleIdx].expected = false;
+    else if(value === 'null') files[currentFile].mobs[idx].rules[ruleIdx].expected = null;
+    else if(!isNaN(Number(value)) && value !== '') files[currentFile].mobs[idx].rules[ruleIdx].expected = Number(value);
+    else files[currentFile].mobs[idx].rules[ruleIdx].expected = value;
+    
+    renderEditor();
+}
+
+function updateRuleGender(idx, ruleIdx, value){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs[idx].rules) files[currentFile].mobs[idx].rules = [];
+    if(!files[currentFile].mobs[idx].rules[ruleIdx]) files[currentFile].mobs[idx].rules[ruleIdx] = {};
+    
+    let hasBaby = files[currentFile].mobs[idx].rules.some(r => r.gender === 'baby');
+    if(value === 'baby' && hasBaby && files[currentFile].mobs[idx].rules[ruleIdx].gender !== 'baby'){
+        toast("Baby rule already exists! Only one baby rule allowed.", "error");
+        renderEditor();
+        return;
+    }
+    
+    let oldGender = files[currentFile].mobs[idx].rules[ruleIdx].gender;
+    files[currentFile].mobs[idx].rules[ruleIdx].gender = value;
+    
+    if(value === 'baby' && oldGender !== 'baby'){
+        files[currentFile].mobs[idx].rules[ruleIdx].method = "isBaby";
+    }
+    
+    if(value === 'baby'){
+        let babyRule = files[currentFile].mobs[idx].rules.splice(ruleIdx, 1)[0];
+        files[currentFile].mobs[idx].rules.unshift(babyRule);
+    }
+    
+    renderEditor();
+}
+
+function renameCurrentFile(newName){
+    if(!currentFile) return;
+    let name = newName.trim();
+    if(!name) return;
+    if(name === currentFile) return;
+    if(files[name]){
+        toast("File with this name already exists!", "error");
+        document.getElementById('currentFileName').value = currentFile;
+        return;
+    }
+    files[name] = files[currentFile];
+    delete files[currentFile];
+    currentFile = name;
+    renderFileList();
+    renderEditor();
+    toast(`Renamed to ${name}`, "success");
+}
+
+function setForceGender(idx){
+    if(!currentFile || !files[currentFile]) return;
+    delete files[currentFile].mobs[idx].rules;
+    files[currentFile].mobs[idx].forceGender = 'male';
+    renderEditor();
+}
+
+function setMethodGender(idx){
+    if(!currentFile || !files[currentFile]) return;
+    delete files[currentFile].mobs[idx].forceGender;
+    if(!files[currentFile].mobs[idx].rules || files[currentFile].mobs[idx].rules.length === 0){
+        files[currentFile].mobs[idx].rules = [{method: "", expected: true, gender: "male"}];
+    }
+    renderEditor();
+}
+
+function setSterileDefault(idx){
+    if(!currentFile || !files[currentFile]) return;
+    delete files[currentFile].mobs[idx].sterileChance;
+    delete files[currentFile].mobs[idx].sterileMethod;
+    delete files[currentFile].mobs[idx].sterileInvert;
+    renderEditor();
+}
+
+function setSterileDisable(idx){
+    if(!currentFile || !files[currentFile]) return;
+    delete files[currentFile].mobs[idx].sterileMethod;
+    delete files[currentFile].mobs[idx].sterileInvert;
+    files[currentFile].mobs[idx].sterileChance = 0;
+    renderEditor();
+}
+
+function setSterileMethod(idx){
+    if(!currentFile || !files[currentFile]) return;
+    delete files[currentFile].mobs[idx].sterileChance;
+    files[currentFile].mobs[idx].sterileMethod = "example_method";
+    files[currentFile].mobs[idx].sterileInvert = false;
+    renderEditor();
+}
+
+function updateSterileMethodField(idx, value){
+    if(!currentFile || !files[currentFile]) return;
+    if(value === '' || value === 'example_method'){
+        files[currentFile].mobs[idx].sterileMethod = "example_method";
+    } else {
+        files[currentFile].mobs[idx].sterileMethod = value;
+    }
+    if(files[currentFile].mobs[idx].sterileInvert === undefined){
+        files[currentFile].mobs[idx].sterileInvert = false;
+    }
+    updateJsonPreview();
+}
+
+function updateSterileInvertField(idx, value){
+    if(!currentFile || !files[currentFile]) return;
+    files[currentFile].mobs[idx].sterileInvert = value;
+    updateJsonPreview();
+}
+
+function clearSterileMethodField(idx){
+    if(!currentFile || !files[currentFile]) return;
+    delete files[currentFile].mobs[idx].sterileMethod;
+    delete files[currentFile].mobs[idx].sterileInvert;
+    renderEditor();
+}
+
+function addRule(idx){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs[idx].rules) files[currentFile].mobs[idx].rules = [];
+    
+    let newRule = {method: "", expected: true, gender: "male"};
+    files[currentFile].mobs[idx].rules.push(newRule);
+    renderEditor();
+}
+
+function removeRule(idx, ruleIdx){
+    if(!currentFile || !files[currentFile]) return;
+    files[currentFile].mobs[idx].rules.splice(ruleIdx, 1);
+    if(files[currentFile].mobs[idx].rules.length === 0){
+        delete files[currentFile].mobs[idx].rules;
+    }
+    renderEditor();
+}
+
+function updateRule(idx, ruleIdx, field, value){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs[idx].rules) files[currentFile].mobs[idx].rules = [];
+    if(!files[currentFile].mobs[idx].rules[ruleIdx]) files[currentFile].mobs[idx].rules[ruleIdx] = {};
+    files[currentFile].mobs[idx].rules[ruleIdx][field] = value;
+    renderEditor();
+}
+
+function updateMob(idx, field, value){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs[idx]) files[currentFile].mobs[idx] = {};
+    if(value === undefined || value === ''){
+        delete files[currentFile].mobs[idx][field];
+    } else {
+        files[currentFile].mobs[idx][field] = value;
+    }
+    renderEditor();
+}
+
+function addMob(){
+    if(!currentFile || !files[currentFile]) return;
+    if(!files[currentFile].mobs) files[currentFile].mobs = [];
+    let newMobId = "modname:mobid" + mobCounter;
+    mobCounter++;
+    files[currentFile].mobs.push({
+        mobId: newMobId, 
+        rules: [
+            {method: "", expected: true, gender: "male"},
+            {method: "", expected: false, gender: "female"}
+        ]
+    });
+    renderEditor();
+}
+
+function deleteMob(idx){
+    files[currentFile].mobs.splice(idx, 1);
+    renderEditor();
+}
+
+function downloadAllZip(){
+    let zip = new JSZip();
+    let folder = zip.folder("compat");
+    for(let [name, content] of Object.entries(files)){
+        folder.file(name + ".json", JSON.stringify(content, null, 2));
+    }
+    zip.generateAsync({type: "blob"}).then(function(blob){
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "genderbub_compat.zip";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast(`Downloaded ${Object.keys(files).length} files`, "success");
+    });
+}
+
+function escape(s){
+    if(!s) return '';
+    return s.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+}
+
+files = {};
+currentFile = null;
+renderFileList();
+document.getElementById('editorPanel').innerHTML = '<div style="padding:40px;text-align:center;color:#9aa0ae">No files. Click "New" to create a compat file.</div>';
+
+let btns = document.querySelectorAll('.link-btn');
+btns.forEach(btn => {
+    let enterDirection = 'left';
+    btn.addEventListener('mouseenter', function(e) {
+        let rect = this.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let width = rect.width;
+        enterDirection = x < width / 2 ? 'left' : 'right';
+        this.style.setProperty('--origin-x', enterDirection);
+    });
+    btn.addEventListener('mouseleave', function(e) {
+        let rect = this.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let width = rect.width;
+        let exitDirection = x < width / 2 ? 'left' : 'right';
+        this.style.setProperty('--origin-x', exitDirection);
+    });
+});
+
+fetchDownloadCounts();
+createFallingSymbols();
+window.addEventListener('resize',()=>createFallingSymbols());
+
+window.switchFile = switchFile;
+window.createNewFile = createNewFile;
+window.deleteFile = deleteFile;
+window.downloadAllZip = downloadAllZip;
+window.addMob = addMob;
+window.deleteMob = deleteMob;
+window.updateMob = updateMob;
+window.updateRule = updateRule;
+window.updateRuleExpected = updateRuleExpected;
+window.updateRuleCustomExpected = updateRuleCustomExpected;
+window.updateRuleGender = updateRuleGender;
+window.addRule = addRule;
+window.removeRule = removeRule;
+window.openJsonFile = openJsonFile;
+window.renameCurrentFile = renameCurrentFile;
+window.setForceGender = setForceGender;
+window.setMethodGender = setMethodGender;
+window.updateForceGenderValue = updateForceGenderValue;
+window.setSterileDefault = setSterileDefault;
+window.setSterileDisable = setSterileDisable;
+window.setSterileMethod = setSterileMethod;
+window.updateSterileMethodField = updateSterileMethodField;
+window.updateSterileInvertField = updateSterileInvertField;
+window.clearSterileMethodField = clearSterileMethodField;
+</script>
+</body>
+</html>
