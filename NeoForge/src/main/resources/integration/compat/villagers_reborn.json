@@ -1,0 +1,14 @@
+{
+  "mobs": [
+    {
+      "mobId": "slimpatch:male_villager",
+      "forceGender": "male",
+      "sterileChance": 0
+    },
+    {
+      "mobId": "slimpatch:female_villager",
+      "forceGender": "female",
+      "sterileChance": 0
+    }
+  ]
+}

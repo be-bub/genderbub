@@ -2,7 +2,6 @@ package com.bebub.genderbub.mixins;
 
 import com.bebub.genderbub.GenderCore;
 import com.bebub.genderbub.GenderMod;
-import com.bebub.genderbub.compat.GenderAddon;
 import com.bebub.genderbub.config.GenderConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -22,13 +21,6 @@ public class BreedMixin {
         
         ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(self.getType());
         if (id != null && GenderConfig.getGenderOnlyMobs().contains(id.toString())) {
-            return;
-        }
-        
-        if (GenderAddon.isIceFireDragon(self) || GenderAddon.isIceFireDragon(other)) {
-            if (!GenderAddon.canIceFireDragonMate(self, other)) {
-                cir.setReturnValue(false);
-            }
             return;
         }
         

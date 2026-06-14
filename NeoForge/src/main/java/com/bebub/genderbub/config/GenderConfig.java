@@ -23,6 +23,11 @@ public class GenderConfig {
         GenderCache.loadFromData(GenderLoader.getData());
     }
     
+    public static void reloadAll() {
+        GenderLoader.reloadAll();
+        GenderCache.loadFromData(GenderLoader.getData());
+    }
+    
     public static void resetToDefault() { 
         GenderLoader.reset(); 
         GenderCache.loadFromData(GenderLoader.getData());
@@ -93,7 +98,9 @@ public class GenderConfig {
     }
     
     public static boolean isScannerItem(Item item) {
-        return GenderMatcher.isScannerItem(item);
+        if (item == null) return false;
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+        return id != null && id.toString().equals("genderbub:magnifying_glass");
     }
     
     public static String[] getRandomGenderWithSterile() {

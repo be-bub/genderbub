@@ -1,0 +1,23 @@
+{
+  "mobs": [
+    {
+      "mobId": "environmental:yak",
+      "interactionRule": {
+        "genders": [
+          "male",
+          "sterile"
+        ],
+        "items": [
+          "minecraft:bucket"
+        ]
+      }
+    },
+    {
+      "mobId": "environmental:duck",
+      "eggRule": [
+        "male",
+        "sterile"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "mobs": [
+    {
+      "mobId": "minecraft:cow",
+      "interactionRule": {
+        "genders": [
+          "male",
+          "sterile"
+        ],
+        "items": [
+          "minecraft:bucket",
+          "+meadow:wooden_bucket"
+        ]
+      }
+    },
+    {
+      "mobId": "minecraft:goat",
+      "interactionRule": {
+        "genders": [
+          "male",
+          "sterile"
+        ],
+        "items": [
+          "minecraft:bucket",
+          "+meadow:wooden_bucket"
+        ]
+      }
+    },
+    {
+      "mobId": "minecraft:chicken",
+      "eggRule": [
+        "male",
+        "sterile"
+      ]
+    }
+  ]
+}

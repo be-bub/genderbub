@@ -1,0 +1,11 @@
+{
+  "mobs": [
+    {
+      "mobId": "alexsmobs:emu",
+      "eggRule": [
+        "male",
+        "sterile"
+      ]
+    }
+  ]
+}

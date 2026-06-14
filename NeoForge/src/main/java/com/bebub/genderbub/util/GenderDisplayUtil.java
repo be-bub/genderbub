@@ -1,7 +1,6 @@
 package com.bebub.genderbub.util;
 
 import com.bebub.genderbub.GenderCore;
-import com.bebub.genderbub.compat.GenderAddon;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.AgeableMob;
@@ -11,9 +10,20 @@ import net.minecraft.world.entity.monster.ZombieVillager;
 
 public class GenderDisplayUtil {
     
+    private static final int MALE = 0x55AAFF;
+    private static final int FEMALE = 0xFF55FF;
+    private static final int STERILE = 0xAAAAAA;
+    private static final int BABY = 0xFFAA55;
+    private static final int CACHED = 0x888888;
+    private static final int VILLAGER_MALE = 0x55AAFF;
+    private static final int VILLAGER_FEMALE = 0xFF55FF;
+    private static final int VILLAGER_STERILE = 0x88AA88;
+    private static final int VILLAGER_ZOMBIE = 0x88FF88;
+    private static final int VILLAGER_ZOMBIE_STERILE = 0x88AA88;
+    
     public static int getColor(LivingEntity entity) {
         if (GenderCore.isGenderCached(entity)) {
-            return 0x888888;
+            return CACHED;
         }
         
         String gender = GenderCore.getGender(entity);
@@ -21,25 +31,24 @@ public class GenderDisplayUtil {
         boolean isBaby = entity instanceof AgeableMob && ((AgeableMob) entity).isBaby();
         boolean isVillager = entity instanceof Villager;
         boolean isZombieVillager = entity instanceof ZombieVillager;
-        boolean isDragon = GenderAddon.isIceFireDragon(entity);
-        boolean isNaturalistLionBaby = GenderAddon.isNaturalistLion(entity) && isBaby;
-        boolean isPrimalLionBaby = GenderAddon.isPrimalLion(entity) && isBaby;
         
         if (isZombieVillager) {
-            return sterile ? 0x88AA88 : 0x88FF88;
+            return sterile ? VILLAGER_ZOMBIE_STERILE : VILLAGER_ZOMBIE;
         }
         
-        if (gender.equals("baby") || isNaturalistLionBaby || isPrimalLionBaby) {
-            return 0xFFAA55;
+        if (isBaby || gender.equals("baby")) {
+            return BABY;
         }
         
-        if (sterile) return 0xAAAAAA;
-        
-        if (isDragon) {
-            return gender.equals("male") ? 0x55AAFF : 0xFF55FF;
+        if (sterile) {
+            return STERILE;
         }
         
-        return gender.equals("male") ? 0x55AAFF : 0xFF55FF;
+        if (isVillager) {
+            return gender.equals("male") ? VILLAGER_MALE : VILLAGER_FEMALE;
+        }
+        
+        return gender.equals("male") ? MALE : FEMALE;
     }
     
     public static String getTranslationKey(LivingEntity entity) {
@@ -52,11 +61,8 @@ public class GenderDisplayUtil {
         boolean isBaby = entity instanceof AgeableMob && ((AgeableMob) entity).isBaby();
         boolean isVillager = entity instanceof Villager;
         boolean isZombieVillager = entity instanceof ZombieVillager;
-        boolean isDragon = GenderAddon.isIceFireDragon(entity);
-        boolean isNaturalistLionBaby = GenderAddon.isNaturalistLion(entity) && isBaby;
-        boolean isPrimalLionBaby = GenderAddon.isPrimalLion(entity) && isBaby;
         
-        if (gender.equals("baby") || isNaturalistLionBaby || isPrimalLionBaby) {
+        if (isBaby || gender.equals("baby")) {
             return "genderbub.gender.baby";
         }
         
@@ -72,13 +78,6 @@ public class GenderDisplayUtil {
                 return isBaby ? "genderbub.villager.sterile.baby" : "genderbub.villager.sterile." + gender;
             }
             return isBaby ? "genderbub.villager.baby" : "genderbub.villager." + gender;
-        }
-        
-        if (isDragon) {
-            if (sterile) {
-                return gender.equals("male") ? "genderbub.gender.sterile.male" : "genderbub.gender.sterile.female";
-            }
-            return gender.equals("male") ? "genderbub.gender.male" : "genderbub.gender.female";
         }
         
         if (sterile) {
@@ -98,11 +97,6 @@ public class GenderDisplayUtil {
         String key = getTranslationKey(entity);
         int color = getColor(entity);
         
-        if (gender.equals("baby")) {
-            return Component.translatable(key).withStyle(Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(color)));
-        }
-        
-        String icon = gender.equals("male") ? "♂ " : "♀ ";
-        return Component.literal(icon).append(Component.translatable(key)).withStyle(Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(color)));
+        return Component.translatable(key).withStyle(Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(color)));
     }
 }
