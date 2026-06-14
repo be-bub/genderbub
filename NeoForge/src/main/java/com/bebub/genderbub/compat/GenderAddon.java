@@ -44,9 +44,7 @@ public class GenderAddon {
         
         if (rule.forceGender != null && !rule.forceGender.isEmpty()) {
             GenderCore.setGender(entity, rule.forceGender);
-            if (rule.sterileChance >= 0) {
-                GenderCore.setSterile(entity, shouldBeSterile(rule.sterileChance));
-            }
+            applySterile(entity, rule);
             return;
         }
         
@@ -55,12 +53,25 @@ public class GenderAddon {
                 Boolean result = callMethod(entity, r.method);
                 if (result != null && result == r.expected) {
                     GenderCore.setGender(entity, r.gender);
-                    if (rule.sterileChance >= 0) {
-                        GenderCore.setSterile(entity, shouldBeSterile(rule.sterileChance));
-                    }
+                    applySterile(entity, rule);
                     return;
                 }
             }
+        }
+    }
+    
+    private static void applySterile(LivingEntity entity, GenderLoader.MobCompatRule rule) {
+        if (rule.sterileMethod != null && !rule.sterileMethod.isEmpty()) {
+            Boolean result = callMethod(entity, rule.sterileMethod);
+            if (result != null) {
+                boolean sterile = rule.sterileInvert ? !result : result;
+                GenderCore.setSterile(entity, sterile);
+                return;
+            }
+        }
+        
+        if (rule.sterileChance >= 0) {
+            GenderCore.setSterile(entity, shouldBeSterile(rule.sterileChance));
         }
     }
     

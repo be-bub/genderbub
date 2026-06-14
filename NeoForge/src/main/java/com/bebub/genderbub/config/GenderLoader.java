@@ -322,6 +322,8 @@ public class GenderLoader {
         public List<CompatRule> rules;
         public String forceGender;
         public int sterileChance = -1;
+        public String sterileMethod;
+        public boolean sterileInvert;
         public ColorConfig colors;
     }
     
