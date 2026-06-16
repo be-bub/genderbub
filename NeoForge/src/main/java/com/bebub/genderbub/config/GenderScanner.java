@@ -61,7 +61,9 @@ public class GenderScanner {
             }
         }
         
-        if (addRulesFromConfig(data, existing)) {
+        Set<String> allEnabled = new HashSet<>(data.settings.enabledMobs);
+        
+        if (addRulesFromConfig(data, allEnabled)) {
             changes = true;
         }
         
@@ -92,14 +94,14 @@ public class GenderScanner {
         GenderLoader.save();
     }
     
-    private static boolean addRulesFromConfig(GenderData data, Set<String> existing) {
+    private static boolean addRulesFromConfig(GenderData data, Set<String> enabledMobs) {
         boolean changed = false;
         
         for (Map.Entry<String, GenderLoader.ScanRule> entry : RULES.entrySet()) {
             String mobId = entry.getKey();
             GenderLoader.ScanRule rule = entry.getValue();
             
-            if (!existing.contains(mobId)) continue;
+            if (!enabledMobs.contains(mobId)) continue;
             
             String modId = mobId.contains(":") ? mobId.split(":")[0] : "";
             if (!modId.isEmpty() && !modId.equals("minecraft") && !ModList.get().isLoaded(modId)) {
