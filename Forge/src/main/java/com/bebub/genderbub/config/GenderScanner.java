@@ -1,6 +1,8 @@
 package com.bebub.genderbub.config;
 
 import com.bebub.genderbub.GenderMod;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.animal.Animal;
@@ -31,8 +33,10 @@ public class GenderScanner {
         for (GenderLoader.ScanRule rule : rules) {
             if (rule.mobId != null) {
                 RULES.put(rule.mobId, rule);
+                GenderMod.LOGGER.info("Loaded scan rule for: {}", rule.mobId);
             }
         }
+        GenderMod.LOGGER.info("Total scan rules loaded: {}", RULES.size());
     }
     
     public static void performFirstScan(GenderData data) {
@@ -58,7 +62,9 @@ public class GenderScanner {
             }
         }
         
-        if (addRulesFromConfig(data, existing)) {
+        Set<String> allEnabled = new HashSet<>(data.settings.enabledMobs);
+        
+        if (addRulesFromConfig(data, allEnabled)) {
             changes = true;
         }
         
@@ -89,14 +95,14 @@ public class GenderScanner {
         GenderLoader.save();
     }
     
-    private static boolean addRulesFromConfig(GenderData data, Set<String> existing) {
+    private static boolean addRulesFromConfig(GenderData data, Set<String> enabledMobs) {
         boolean changed = false;
         
         for (Map.Entry<String, GenderLoader.ScanRule> entry : RULES.entrySet()) {
             String mobId = entry.getKey();
-            var rule = entry.getValue();
+            GenderLoader.ScanRule rule = entry.getValue();
             
-            if (!existing.contains(mobId)) continue;
+            if (!enabledMobs.contains(mobId)) continue;
             
             String modId = mobId.contains(":") ? mobId.split(":")[0] : "";
             if (!modId.isEmpty() && !modId.equals("minecraft") && !ModList.get().isLoaded(modId)) {
@@ -107,6 +113,7 @@ public class GenderScanner {
                 if (data.eggRules.stream().noneMatch(r -> r.mobId.equals(mobId))) {
                     data.eggRules.add(new GenderData.EggRule(mobId, rule.eggRule));
                     changed = true;
+                    GenderMod.LOGGER.info("Added egg rule for: {}", mobId);
                 }
             }
             
@@ -131,6 +138,7 @@ public class GenderScanner {
                     if (!validItems.isEmpty()) {
                         data.interactions.add(new GenderData.InteractionRule(mobId, rule.interactionRule.genders, validItems));
                         changed = true;
+                        GenderMod.LOGGER.info("Added interaction rule for: {}", mobId);
                     }
                 }
             }
@@ -151,10 +159,12 @@ public class GenderScanner {
     private static List<String> filterAnimals(List<String> allMobs) {
         List<String> animals = new ArrayList<>();
         for (String mobId : allMobs) {
-            var loc = new net.minecraft.resources.ResourceLocation(mobId);
-            var type = ForgeRegistries.ENTITY_TYPES.getValue(loc);
-            if (type != null && isAnimal(type, mobId)) {
-                animals.add(mobId);
+            ResourceLocation loc = ResourceLocation.tryParse(mobId);
+            if (loc != null) {
+                EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(loc);
+                if (type != null && isAnimal(type, mobId)) {
+                    animals.add(mobId);
+                }
             }
         }
         Collections.sort(animals);

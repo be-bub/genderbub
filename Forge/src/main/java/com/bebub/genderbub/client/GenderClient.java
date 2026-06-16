@@ -109,19 +109,6 @@ public class GenderClient {
             return;
         }
 
-        if (GenderCore.isGenderCached(entity)) {
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.FAIL);
-            return;
-        }
-
-        String gender = GenderCore.getGender(entity);
-        if (gender.equals("none")) {
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.FAIL);
-            return;
-        }
-
         if (GenderConfig.isSyncConfigRules()) {
             boolean isOffhand = event.getHand() == net.minecraft.world.InteractionHand.OFF_HAND;
             GenderNetwork.sendInteraction(entity.getId(), isOffhand);
