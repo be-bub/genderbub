@@ -1,8 +1,8 @@
-[![Showcase](https://img.shields.io/badge/Showcase-1A1C20?style=for-the-badge&logo=youtube&logoColor=FF0000)](https://youtu.be/lF4euVOg3-k)
-[![CurseForge](https://img.shields.io/curseforge/dt/1497835?style=for-the-badge&logo=curseforge&logoColor=F16436&label=CurseForge&labelColor=1A1C20&color=2f353d)](https://curseforge.com/minecraft/mc-mods/genderbub)
-[![Modrinth](https://img.shields.io/modrinth/dt/genderbub?style=for-the-badge&logo=modrinth&logoColor=00AF5C&label=Modrinth&labelColor=1A1C20&color=2f353d)](https://modrinth.com/mod/genderbub)
-[![Config Editor](https://img.shields.io/badge/Config_Editor-1A1C20?style=for-the-badge&logo=github&logoColor=FFFFFF)](https://be-bub.github.io/genderbub/)
-[![Mod Documentation](https://img.shields.io/badge/Mod_Documentation-1A1C20?style=for-the-badge&logo=github&logoColor=FFFFFF)](https://github.com/be-bub/genderbub/wiki/Mod)
+[![Showcase](https://img.shields.io/badge/Showcase-1A1C20?style=for-the-badge)](https://youtu.be/lF4euVOg3-k)
+[![Config Editor](https://img.shields.io/badge/Config_Editor-1A1C20?style=for-the-badge)](https://be-bub.github.io/genderbub/)
+[![Mod Documentation](https://img.shields.io/badge/Mod_Documentation-1A1C20?style=for-the-badge)](https://github.com/be-bub/genderbub/wiki/Mod)
+[![CurseForge](https://img.shields.io/curseforge/dt/1497835?style=for-the-badge&logo=curseforge&logoColor=F16436&label=&labelColor=1A1C20&color=2f353d)](https://curseforge.com/minecraft/mc-mods/genderbub)
+[![Modrinth](https://img.shields.io/modrinth/dt/genderbub?style=for-the-badge&logo=modrinth&logoColor=00AF5C&label=&labelColor=1A1C20&color=2f353d)](https://modrinth.com/mod/genderbub)
 
 <table style="width: 100%; border: 1px solid #2a2a30; background-color: #0d0d0d; border-radius: 8px; padding: 0; margin-bottom: 16px; border-collapse: collapse;">
   <tr>
