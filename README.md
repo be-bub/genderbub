@@ -15,13 +15,7 @@
   </tr>
 </table>
 
-- **Random gender:** male or female on spawn with configurable chance (0-50% each)
-- **Sterility:** infertile mobs can't breed, chance is based on your male/female ratio settings.
-- **Visual icons:** configurable gender icon above mobs and HUD when holding scanner.
-- **Breeding control:** block same-gender breeding, disable sterile breeding, or allow all.
-- **Item restrictions:** prevent using specific items on certain genders (milking male cows).
-- **Villager support:** villagers get genders, preserved when curing zombie villagers.
-- **Modded mob support:** auto-scan or manually add any modded animal to config.
+Each mob gets assigned a random gender upon spawning, with a configurable chance from 0% to 50% for each option. Infertile mobs cannot breed, and the probability is calculated automatically based on your male/female ratio settings. A configurable gender icon appears above mobs and in the HUD when holding the scanner item. You can block same-gender breeding, disable sterile breeding, or allow all without restrictions. Prevents using specific items on certain genders, such as milking a male cow. Villagers receive genders, and this is preserved when curing zombie villagers. Automatically scans for modded animals that extend the Animal class, or you can manually add any animal to the config.
 
 <table style="width: 100%; border: none; background-color: #1A1C20; border-radius: 8px; padding: 10px; margin-bottom: 16px; display: table;">
   <tr>
