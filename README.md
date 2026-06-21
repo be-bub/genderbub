@@ -8,13 +8,6 @@
 
 Each mob gets assigned a random gender upon spawning, with a configurable chance from 0% to 50% for each option. Infertile mobs cannot breed, and the probability is calculated automatically based on your male/female ratio settings. A configurable gender icon appears above mobs and in the HUD when holding the scanner item. You can block same-gender breeding, disable sterile breeding, or allow all without restrictions. Prevents using specific items on certain genders, such as milking a male cow. Villagers receive genders, and this is preserved when curing zombie villagers. Automatically scans for modded animals that extend the Animal class, or you can manually add any animal to the config.
 
-<div align="right">
-  
-  [![CurseForge](https://img.shields.io/curseforge/dt/1497835?style=for-the-badge&logo=curseforge&logoColor=F16436&label=&labelColor=0c1017&color=0c1017)](https://curseforge.com/minecraft/mc-mods/genderbub)
-  [![Modrinth](https://img.shields.io/modrinth/dt/genderbub?style=for-the-badge&logo=modrinth&logoColor=00AF5C&label=&labelColor=0c1017&color=0c1017)](https://modrinth.com/mod/genderbub)
-  
-</div>
-
 <table style="width: 100%; border: none; background-color: #1A1C20; border-radius: 8px; padding: 10px; margin-bottom: 16px; display: table;">
   <tr>
     <td style="border: none; padding: 12px; text-align: left; font-size: 24px; font-weight: bold; color: #FFFFFF;">
@@ -59,3 +52,10 @@ Each mob gets assigned a random gender upon spawning, with a configurable chance
   <br>
   <span style="font-size: 12px; color: #7c7f8c;">Commands: English only</span>
 </p>
+
+<div align="center">
+  
+  [![CurseForge](https://img.shields.io/curseforge/dt/1497835?style=for-the-badge&logo=curseforge&logoColor=F16436&label=&labelColor=0c1017&color=0c1017)](https://curseforge.com/minecraft/mc-mods/genderbub)
+  [![Modrinth](https://img.shields.io/modrinth/dt/genderbub?style=for-the-badge&logo=modrinth&logoColor=00AF5C&label=&labelColor=0c1017&color=0c1017)](https://modrinth.com/mod/genderbub)
+  
+</div>
