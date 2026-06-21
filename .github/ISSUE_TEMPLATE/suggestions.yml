@@ -1,0 +1,18 @@
+name: 💡 Suggestions
+description: Suggest ideas or features
+title: "[Suggestion]: "
+labels: ["suggestion"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before submitting, please check [Compatibility](https://github.com/be-bub/genderbub/wiki/Compatibility).
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggestion
+      description: Describe your idea, feature, or integration request. For example, what you want to add or improve in the mod.
+    validations:
+      required: true
