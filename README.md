@@ -29,7 +29,7 @@ Each mob gets assigned a random gender upon spawning, with a configurable chance
   </tr>
   <tr>
     <td style="border: none; padding: 12px; text-align: left; font-size: 14px; line-height: 1.6; color: #b0b3bc;">
-      Yes, if you need to add integration with a mod that hasn't been configured yet, you can do it yourself. For example, if you want mob A to always spawn as gender B, go to the <a href="https://be-bub.github.io/genderbub/" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Config Editor</a>, select "Integration Editor", and create a new integration. After that, place the generated files in <code style="background-color: #2a2a30; padding: 2px 6px; border-radius: 4px; color: #b3b3b2;">config/genderbub/integration/compat</code> (inside your Minecraft instance folder) and run the command <code style="background-color: #2a2a30; padding: 2px 6px; border-radius: 4px; color: #b3b3b2;">/bub server integration</code>.
+      Yes, if you need to add integration with a mod that hasn't been configured yet, you can do it yourself. For example, if you want mob A to always spawn as gender B, go to the <a href="https://be-bub.github.io/bub-hub/" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Config Editor</a>, select "Integration Editor", and create a new integration. After that, place the generated files in <code style="background-color: #2a2a30; padding: 2px 6px; border-radius: 4px; color: #b3b3b2;">config/genderbub/integration/compat</code> (inside your Minecraft instance folder) and run the command <code style="background-color: #2a2a30; padding: 2px 6px; border-radius: 4px; color: #b3b3b2;">/bub server integration</code>.
     </td>
   </tr>
 </table>
