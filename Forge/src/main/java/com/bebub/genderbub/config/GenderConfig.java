@@ -31,6 +31,7 @@ public class GenderConfig {
     public static void resetClientToDefault() {
         GenderLoader.getData().settings.displayRadius = 24;
         GenderLoader.getData().settings.hideWithJade = true;
+        GenderLoader.getData().settings.hideWithNeat = true;
         GenderLoader.getData().settings.requireScanner = true;
         GenderLoader.getData().settings.syncConfigRules = false;
         GenderLoader.save();
@@ -61,6 +62,7 @@ public class GenderConfig {
     public static boolean isEnableVillagers() { return GenderCache.isEnableVillagers(); }
     public static boolean isKeepVillagerGender() { return GenderCache.isKeepVillagerGender(); }
     public static boolean isHideWithJade() { return GenderCache.isHideWithJade(); }
+    public static boolean isHideWithNeat() { return GenderCache.isHideWithNeat(); }
     public static boolean isRequireScanner() { return GenderCache.isRequireScanner(); }
     public static boolean isSyncConfigRules() { return GenderCache.isSyncConfigRules(); }
     

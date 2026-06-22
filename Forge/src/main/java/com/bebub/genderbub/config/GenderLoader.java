@@ -141,6 +141,7 @@ public class GenderLoader {
                 settings.addProperty("femaleChance", getIntOrDefault(settings, "femaleChance", defaultData.settings.femaleChance));
                 settings.addProperty("displayRadius", getIntWithBounds(settings, "displayRadius", defaultData.settings.displayRadius, 0, 128));
                 settings.addProperty("hideWithJade", getBooleanOrDefault(settings, "hideWithJade", defaultData.settings.hideWithJade));
+                settings.addProperty("hideWithNeat", getBooleanOrDefault(settings, "hideWithNeat", defaultData.settings.hideWithNeat));
                 settings.addProperty("requireScanner", getBooleanOrDefault(settings, "requireScanner", defaultData.settings.requireScanner));
                 settings.addProperty("syncConfigRules", getBooleanOrDefault(settings, "syncConfigRules", defaultData.settings.syncConfigRules));
                 settings.addProperty("allowMaleMaleBreed", getBooleanOrDefault(settings, "allowMaleMaleBreed", defaultData.settings.allowMaleMaleBreed));
@@ -334,6 +335,7 @@ public class GenderLoader {
         public int sterileChance = -1;
         public String sterileMethod;
         public boolean sterileInvert;
+        public Boolean useGlobalSterile;
         public ColorConfig colors;
     }
     
@@ -344,10 +346,10 @@ public class GenderLoader {
     }
     
     public static class ColorConfig {
-        public Integer male;
-        public Integer female;
-        public Integer sterile;
-        public Integer baby;
+        public String male;
+        public String female;
+        public String sterile;
+        public String baby;
     }
     
     public static class ScanRule {

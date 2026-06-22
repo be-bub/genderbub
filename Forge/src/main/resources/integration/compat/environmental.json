@@ -2,6 +2,7 @@
   "mobs": [
     {
       "mobId": "environmental:deer",
+      "useGlobalSterile": true,
       "rules": [
         {
           "method": "hasAntlers",

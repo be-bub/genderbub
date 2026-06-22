@@ -32,11 +32,16 @@ public class GenderUI {
         String gender = GenderCore.getGender(target);
         if (gender.equals("none")) return;
         
+        boolean isBaby = gender.equals("baby") || (target instanceof AgeableMob && ((AgeableMob) target).isBaby());
+        
         int genderColor = GenderDisplayUtil.getColor(target);
         String genderText = GenderDisplayUtil.getTranslationKey(target);
         String localizedGender = net.minecraft.network.chat.Component.translatable(genderText).getString();
         
-        ResourceLocation icon = getGenderIcon(target);
+        ResourceLocation icon = null;
+        if (!isBaby) {
+            icon = getGenderIcon(target);
+        }
         
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
@@ -73,7 +78,11 @@ public class GenderUI {
             int textY = centerY - mc.font.lineHeight / 2;
             int textX = textBgX + TEXT_BG_PADDING_LEFT;
             
-            gui.drawString(mc.font, localizedGender, textX, textY, genderColor);
+            if (isBaby && genderColor == 0) {
+                gui.drawString(mc.font, localizedGender, textX, textY, 0xFFFFFF);
+            } else {
+                gui.drawString(mc.font, localizedGender, textX, textY, genderColor);
+            }
         }
     }
     
@@ -106,11 +115,6 @@ public class GenderUI {
     }
     
     private static ResourceLocation getGenderIcon(LivingEntity entity) {
-        boolean isBaby = entity instanceof AgeableMob && ((AgeableMob) entity).isBaby();
-        if (isBaby) {
-            return null;
-        }
-        
         String gender = GenderCore.getGender(entity);
         if (gender.equals("male")) return MALE_ICON;
         if (gender.equals("female")) return FEMALE_ICON;

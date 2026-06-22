@@ -19,6 +19,7 @@ public class GenderData {
         public int femaleChance = 45;
         public int displayRadius = 24;
         public boolean hideWithJade = true;
+        public boolean hideWithNeat = true;
         public boolean requireScanner = true;
         public boolean syncConfigRules = false;
         public boolean allowMaleMaleBreed = false;

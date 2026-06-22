@@ -38,6 +38,11 @@ public class ClientCommands {
                         .executes(ClientCommands::setHideWithJade))
                     .then(Commands.literal("default")
                         .executes(ClientCommands::setHideWithJadeDefault)))
+                .then(Commands.literal("hideWithNeat")
+                    .then(Commands.argument("value", BoolArgumentType.bool())
+                        .executes(ClientCommands::setHideWithNeat))
+                    .then(Commands.literal("default")
+                        .executes(ClientCommands::setHideWithNeatDefault)))
                 .then(Commands.literal("requireScanner")
                     .then(Commands.argument("value", BoolArgumentType.bool())
                         .executes(ClientCommands::setRequireScanner))
@@ -61,6 +66,7 @@ public class ClientCommands {
     private static int clientResetToDefault(CommandContext<CommandSourceStack> ctx) {
         GenderLoader.getData().settings.displayRadius = 24;
         GenderLoader.getData().settings.hideWithJade = true;
+        GenderLoader.getData().settings.hideWithNeat = true;
         GenderLoader.getData().settings.requireScanner = true;
         GenderLoader.getData().settings.syncConfigRules = false;
         GenderLoader.save();
@@ -97,6 +103,23 @@ public class ClientCommands {
 
     private static int setHideWithJadeDefault(CommandContext<CommandSourceStack> ctx) {
         GenderLoader.getData().settings.hideWithJade = true;
+        GenderLoader.save();
+        GenderCache.loadFromData(GenderLoader.getData());
+        ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);
+        return 1;
+    }
+
+    private static int setHideWithNeat(CommandContext<CommandSourceStack> ctx) {
+        boolean value = BoolArgumentType.getBool(ctx, "value");
+        GenderLoader.getData().settings.hideWithNeat = value;
+        GenderLoader.save();
+        GenderCache.loadFromData(GenderLoader.getData());
+        ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);
+        return 1;
+    }
+
+    private static int setHideWithNeatDefault(CommandContext<CommandSourceStack> ctx) {
+        GenderLoader.getData().settings.hideWithNeat = true;
         GenderLoader.save();
         GenderCache.loadFromData(GenderLoader.getData());
         ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);

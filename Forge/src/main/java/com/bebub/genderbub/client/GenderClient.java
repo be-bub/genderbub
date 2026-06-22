@@ -26,10 +26,14 @@ public class GenderClient {
 
     private static boolean jadePresent = false;
     private static boolean jadeChecked = false;
+    private static boolean neatPresent = false;
+    private static boolean neatChecked = false;
 
     public static void init() {
         jadePresent = ModList.get().isLoaded("jade");
         jadeChecked = true;
+        neatPresent = ModList.get().isLoaded("neat");
+        neatChecked = true;
     }
 
     @SubscribeEvent
@@ -51,11 +55,20 @@ public class GenderClient {
         return jadePresent;
     }
 
+    private static boolean isNeatPresent() {
+        if (!neatChecked) {
+            neatPresent = ModList.get().isLoaded("neat");
+            neatChecked = true;
+        }
+        return neatPresent;
+    }
+
     private static boolean shouldShowGender(LivingEntity entity, Player player) {
         if (GenderCore.isGenderCached(entity)) return false;
         String gender = GenderCore.getGender(entity);
         if (gender.equals("none")) return false;
         if (isJadePresent() && GenderConfig.isHideWithJade()) return false;
+        if (isNeatPresent() && GenderConfig.isHideWithNeat()) return false;
         if (GenderConfig.isRequireScanner()) {
             boolean hasScanner = isScanner(player.getMainHandItem()) || isScanner(player.getOffhandItem());
             if (!hasScanner) return false;
