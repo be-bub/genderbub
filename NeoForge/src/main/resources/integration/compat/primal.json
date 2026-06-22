@@ -2,6 +2,10 @@
   "mobs": [
     {
       "mobId": "primal:lion",
+      "useGlobalSterile": true,
+      "colors": {
+        "baby": "0xFFAA55"
+      },
       "rules": [
         {
           "method": "isBaby",

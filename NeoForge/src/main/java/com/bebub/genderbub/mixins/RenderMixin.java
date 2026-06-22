@@ -14,6 +14,7 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.fml.ModList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -60,6 +61,12 @@ public class RenderMixin {
         poseStack.pushPose();
         
         double height = living.getBbHeight() + 0.7;
+        
+        boolean isNeatPresent = ModList.get().isLoaded("neat");
+        if (isNeatPresent && GenderConfig.isHideWithNeat()) {
+            height = living.getBbHeight() + 1.1;
+        }
+        
         poseStack.translate(0, height, 0);
         poseStack.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
         poseStack.scale(0.025f, -0.025f, 0.025f);

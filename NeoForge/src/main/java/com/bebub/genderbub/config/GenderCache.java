@@ -16,6 +16,7 @@ public class GenderCache {
     private static int femaleChance;
     private static int displayRadius;
     private static boolean hideWithJade;
+    private static boolean hideWithNeat;
     private static boolean requireScanner;
     private static boolean syncConfigRules;
     private static boolean allowMaleMaleBreed;
@@ -47,6 +48,7 @@ public class GenderCache {
         femaleChance = data.settings.femaleChance;
         displayRadius = data.settings.displayRadius;
         hideWithJade = data.settings.hideWithJade;
+        hideWithNeat = data.settings.hideWithNeat;
         requireScanner = data.settings.requireScanner;
         syncConfigRules = data.settings.syncConfigRules;
         allowMaleMaleBreed = data.settings.allowMaleMaleBreed;
@@ -101,6 +103,7 @@ public class GenderCache {
     public static int getFemaleChance() { return femaleChance; }
     public static int getDisplayRadius() { return displayRadius; }
     public static boolean isHideWithJade() { return hideWithJade; }
+    public static boolean isHideWithNeat() { return hideWithNeat; }
     public static boolean isRequireScanner() { return requireScanner; }
     public static boolean isSyncConfigRules() { return syncConfigRules; }
     public static boolean isAllowMaleMaleBreed() { return allowMaleMaleBreed; }
@@ -113,6 +116,7 @@ public class GenderCache {
     public static void setFemaleChance(int value) { femaleChance = value; }
     public static void setDisplayRadius(int value) { displayRadius = value; }
     public static void setHideWithJade(boolean value) { hideWithJade = value; }
+    public static void setHideWithNeat(boolean value) { hideWithNeat = value; }
     public static void setRequireScanner(boolean value) { requireScanner = value; }
     public static void setSyncConfigRules(boolean value) { syncConfigRules = value; }
     public static void setAllowMaleMaleBreed(boolean value) { allowMaleMaleBreed = value; }

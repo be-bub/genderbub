@@ -15,10 +15,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @EventBusSubscriber(modid = GenderMod.MOD_ID)
 public class ServerCommands {
@@ -31,7 +35,10 @@ public class ServerCommands {
                     .executes(ServerCommands::reload))
                 .then(Commands.literal("integration")
                     .requires(source -> source.hasPermission(2))
-                    .executes(ServerCommands::integrationReload))
+                    .then(Commands.literal("default")
+                        .executes(ServerCommands::integrationDefault))
+                    .then(Commands.literal("reload")
+                        .executes(ServerCommands::integrationReload)))
                 .then(Commands.literal("scan")
                     .requires(source -> source.hasPermission(2))
                     .executes(ServerCommands::scan))
@@ -93,6 +100,101 @@ public class ServerCommands {
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         register(event.getDispatcher());
+    }
+
+    private static void cleanOldBackups(Path backupDir, int maxCount) {
+        try {
+            if (!Files.exists(backupDir)) return;
+            List<Path> files = Files.list(backupDir)
+                .filter(p -> !Files.isDirectory(p))
+                .sorted((a, b) -> Long.compare(b.toFile().lastModified(), a.toFile().lastModified()))
+                .collect(Collectors.toList());
+            
+            for (int i = maxCount; i < files.size(); i++) {
+                Files.delete(files.get(i));
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private static Path createConfigBackup(Path configPath, Path backupDir) throws Exception {
+        Files.createDirectories(backupDir);
+        String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        String backupName = "genderbub_backup_" + timestamp + ".json";
+        Path backupPath = backupDir.resolve(backupName);
+        Files.copy(configPath, backupPath);
+        cleanOldBackups(backupDir, 10);
+        return backupPath;
+    }
+
+    private static Path createIntegrationBackup(Path integrationDir, Path backupDir) throws Exception {
+        Files.createDirectories(backupDir);
+        String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        String backupName = "integration_backup_" + timestamp + ".zip";
+        Path backupPath = backupDir.resolve(backupName);
+        
+        try (FileOutputStream fos = new FileOutputStream(backupPath.toFile());
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+            
+            Files.walk(integrationDir)
+                .filter(p -> !Files.isDirectory(p))
+                .forEach(p -> {
+                    try {
+                        String relativePath = integrationDir.relativize(p).toString().replace("\\", "/");
+                        ZipEntry entry = new ZipEntry(relativePath);
+                        zos.putNextEntry(entry);
+                        Files.copy(p, zos);
+                        zos.closeEntry();
+                    } catch (Exception ignored) {}
+                });
+        }
+        
+        cleanOldBackups(backupDir, 10);
+        return backupPath;
+    }
+
+    private static int integrationDefault(CommandContext<CommandSourceStack> ctx) {
+        try {
+            Path configPath = GenderConfig.getConfigPath();
+            Path integrationDir = configPath.getParent().resolve("integration");
+            Path backupDir = configPath.getParent().resolve("backups").resolve("integration");
+            
+            if (Files.exists(integrationDir)) {
+                createIntegrationBackup(integrationDir, backupDir);
+                
+                Files.walk(integrationDir)
+                    .filter(p -> !Files.isDirectory(p))
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (Exception ignored) {}
+                    });
+            }
+            
+            GenderLoader.mergeDefaultFiles();
+            GenderLoader.loadCompatRules();
+            GenderLoader.loadRules();
+            GenderCache.loadFromData(GenderLoader.getData());
+            
+            ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), true);
+            return 1;
+        } catch (Exception e) {
+            ctx.getSource().sendFailure(Component.translatable("genderbub.command.reload.failed", e.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int integrationReload(CommandContext<CommandSourceStack> ctx) {
+        try {
+            GenderLoader.mergeDefaultFiles();
+            GenderLoader.loadCompatRules();
+            GenderLoader.loadRules();
+            GenderCache.loadFromData(GenderLoader.getData());
+            ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), true);
+            return 1;
+        } catch (Exception e) {
+            ctx.getSource().sendFailure(Component.translatable("genderbub.command.reload.failed", e.getMessage()));
+            return 0;
+        }
     }
 
     private static int setMaleChance(CommandContext<CommandSourceStack> ctx) {
@@ -245,19 +347,6 @@ public class ServerCommands {
         }
     }
 
-    private static int integrationReload(CommandContext<CommandSourceStack> ctx) {
-        try {
-            GenderLoader.mergeDefaultFiles();
-            GenderLoader.loadCompatRules();
-            GenderLoader.loadRules();
-            ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), true);
-            return 1;
-        } catch (Exception e) {
-            ctx.getSource().sendFailure(Component.translatable("genderbub.command.reload.failed", e.getMessage()));
-            return 0;
-        }
-    }
-
     private static int scan(CommandContext<CommandSourceStack> ctx) {
         try {
             Set<String> before = GenderConfig.getEnabledMobs();
@@ -282,8 +371,32 @@ public class ServerCommands {
 
     private static int resetToDefault(CommandContext<CommandSourceStack> ctx) {
         try {
+            Path configPath = GenderConfig.getConfigPath();
+            Path integrationDir = configPath.getParent().resolve("integration");
+            Path backupDir = configPath.getParent().resolve("backups");
+            
+            if (Files.exists(configPath)) {
+                createConfigBackup(configPath, backupDir.resolve("config"));
+            }
+            
+            if (Files.exists(integrationDir)) {
+                createIntegrationBackup(integrationDir, backupDir.resolve("integration"));
+                
+                Files.walk(integrationDir)
+                    .filter(p -> !Files.isDirectory(p))
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (Exception ignored) {}
+                    });
+            }
+            
             GenderLoader.reset();
+            GenderLoader.mergeDefaultFiles();
+            GenderLoader.loadCompatRules();
+            GenderLoader.loadRules();
             GenderCache.loadFromData(GenderLoader.getData());
+            
             ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.default.success"), true);
             return 1;
         } catch (Exception e) {

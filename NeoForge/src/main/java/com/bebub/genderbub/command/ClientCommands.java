@@ -38,6 +38,11 @@ public class ClientCommands {
                         .executes(ClientCommands::setHideWithJade))
                     .then(Commands.literal("default")
                         .executes(ClientCommands::setHideWithJadeDefault)))
+                .then(Commands.literal("hideWithNeat")
+                    .then(Commands.argument("value", BoolArgumentType.bool())
+                        .executes(ClientCommands::setHideWithNeat))
+                    .then(Commands.literal("default")
+                        .executes(ClientCommands::setHideWithNeatDefault)))
                 .then(Commands.literal("requireScanner")
                     .then(Commands.argument("value", BoolArgumentType.bool())
                         .executes(ClientCommands::setRequireScanner))
@@ -66,11 +71,13 @@ public class ClientCommands {
     private static int clientResetToDefault(CommandContext<CommandSourceStack> ctx) {
         GenderLoader.getData().settings.displayRadius = 24;
         GenderLoader.getData().settings.hideWithJade = true;
+        GenderLoader.getData().settings.hideWithNeat = true;
         GenderLoader.getData().settings.requireScanner = true;
         GenderLoader.getData().settings.syncConfigRules = false;
         GenderLoader.save();
         GenderCache.setDisplayRadius(24);
         GenderCache.setHideWithJade(true);
+        GenderCache.setHideWithNeat(true);
         GenderCache.setRequireScanner(true);
         GenderCache.setSyncConfigRules(false);
         ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);
@@ -109,6 +116,24 @@ public class ClientCommands {
         GenderLoader.getData().settings.hideWithJade = value;
         GenderLoader.save();
         GenderCache.setHideWithJade(value);
+        ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);
+        return 1;
+    }
+
+    private static int setHideWithNeat(CommandContext<CommandSourceStack> ctx) {
+        boolean value = BoolArgumentType.getBool(ctx, "value");
+        GenderLoader.getData().settings.hideWithNeat = value;
+        GenderLoader.save();
+        GenderCache.setHideWithNeat(value);
+        ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);
+        return 1;
+    }
+
+    private static int setHideWithNeatDefault(CommandContext<CommandSourceStack> ctx) {
+        boolean value = true;
+        GenderLoader.getData().settings.hideWithNeat = value;
+        GenderLoader.save();
+        GenderCache.setHideWithNeat(value);
         ctx.getSource().sendSuccess(() -> Component.translatable("genderbub.command.config.changed"), false);
         return 1;
     }

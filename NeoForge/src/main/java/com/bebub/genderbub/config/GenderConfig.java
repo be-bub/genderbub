@@ -23,11 +23,6 @@ public class GenderConfig {
         GenderCache.loadFromData(GenderLoader.getData());
     }
     
-    public static void reloadAll() {
-        GenderLoader.reloadAll();
-        GenderCache.loadFromData(GenderLoader.getData());
-    }
-    
     public static void resetToDefault() { 
         GenderLoader.reset(); 
         GenderCache.loadFromData(GenderLoader.getData());
@@ -36,6 +31,7 @@ public class GenderConfig {
     public static void resetClientToDefault() {
         GenderLoader.getData().settings.displayRadius = 24;
         GenderLoader.getData().settings.hideWithJade = true;
+        GenderLoader.getData().settings.hideWithNeat = true;
         GenderLoader.getData().settings.requireScanner = true;
         GenderLoader.getData().settings.syncConfigRules = false;
         GenderLoader.save();
@@ -66,6 +62,7 @@ public class GenderConfig {
     public static boolean isEnableVillagers() { return GenderCache.isEnableVillagers(); }
     public static boolean isKeepVillagerGender() { return GenderCache.isKeepVillagerGender(); }
     public static boolean isHideWithJade() { return GenderCache.isHideWithJade(); }
+    public static boolean isHideWithNeat() { return GenderCache.isHideWithNeat(); }
     public static boolean isRequireScanner() { return GenderCache.isRequireScanner(); }
     public static boolean isSyncConfigRules() { return GenderCache.isSyncConfigRules(); }
     
@@ -74,6 +71,12 @@ public class GenderConfig {
     
     public static boolean isMobEnabled(String mobId) {
         return GenderCache.isMobEnabled(mobId);
+    }
+    
+    public static boolean isScannerItem(Item item) {
+        if (item == null) return false;
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+        return id != null && id.toString().equals("genderbub:magnifying_glass");
     }
     
     public static boolean isItemBlocked(String mobId, String gender, boolean sterile, Item item) {
@@ -95,12 +98,6 @@ public class GenderConfig {
     
     public static GenderData.EggRule getEggRule(String mobId) {
         return GenderCache.getEggRule(mobId);
-    }
-    
-    public static boolean isScannerItem(Item item) {
-        if (item == null) return false;
-        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-        return id != null && id.toString().equals("genderbub:magnifying_glass");
     }
     
     public static String[] getRandomGenderWithSterile() {

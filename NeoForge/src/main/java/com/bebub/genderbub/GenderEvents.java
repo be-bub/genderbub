@@ -10,7 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -80,7 +80,7 @@ public class GenderEvents {
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         if (!(event.getTarget() instanceof LivingEntity entity)) return;
         
-        if (shouldCancelInteraction(entity, event.getItemStack())) {
+        if (shouldCancelInteraction(entity, event.getItemStack().getItem())) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }
@@ -91,10 +91,7 @@ public class GenderEvents {
         if (!(event.getTarget() instanceof LivingEntity entity)) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         
-        ItemStack held = event.getItemStack();
-        if (held.isEmpty()) return;
-        
-        if (shouldCancelInteraction(entity, held)) {
+        if (shouldCancelInteraction(entity, player.getMainHandItem().getItem())) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
             return;
@@ -139,7 +136,7 @@ public class GenderEvents {
         }
     }
     
-    private static boolean shouldCancelInteraction(LivingEntity entity, ItemStack stack) {
+    private static boolean shouldCancelInteraction(LivingEntity entity, Item item) {
         boolean isAnimal = entity instanceof Animal;
         boolean isVillager = entity instanceof Villager;
         boolean isZombieVillager = entity instanceof ZombieVillager;
@@ -157,6 +154,6 @@ public class GenderEvents {
         String gender = GenderCore.getGender(entity);
         if (gender.equals("none")) return false;
         
-        return GenderConfig.isItemBlocked(mobIdStr, gender, GenderCore.isSterile(entity), stack.getItem());
+        return GenderConfig.isItemBlocked(mobIdStr, gender, GenderCore.isSterile(entity), item);
     }
 }

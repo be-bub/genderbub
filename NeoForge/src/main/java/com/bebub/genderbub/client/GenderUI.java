@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.LivingEntity;
 
 public class GenderUI {
@@ -31,21 +32,26 @@ public class GenderUI {
         String gender = GenderCore.getGender(target);
         if (gender.equals("none")) return;
         
+        boolean isBaby = gender.equals("baby") || (target instanceof AgeableMob && ((AgeableMob) target).isBaby());
+        
         int genderColor = GenderDisplayUtil.getColor(target);
         String genderText = GenderDisplayUtil.getTranslationKey(target);
         String localizedGender = net.minecraft.network.chat.Component.translatable(genderText).getString();
+        
+        ResourceLocation icon = null;
+        if (!isBaby) {
+            icon = getGenderIcon(target);
+        }
         
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         
         int textWidth = mc.font.width(localizedGender);
-        int textBgWidth = textWidth + TEXT_BG_PADDING_LEFT + TEXT_BG_PADDING_RIGHT;
         int bgHeight = ICON_SIZE + BG_PADDING_TOP + BG_PADDING_BOTTOM;
         int bgY = screenHeight - TEXT_Y_OFFSET;
         
-        ResourceLocation icon = getGenderIcon(target);
-        
         if (icon != null) {
+            int textBgWidth = textWidth + TEXT_BG_PADDING_LEFT + TEXT_BG_PADDING_RIGHT;
             int iconBgWidth = ICON_SIZE + ICON_BG_PADDING_LEFT + ICON_BG_PADDING_RIGHT;
             int totalWidth = textBgWidth + TEXT_ICON_GAP + iconBgWidth;
             int textBgX = (screenWidth - totalWidth) / 2;
@@ -63,6 +69,7 @@ public class GenderUI {
             gui.drawString(mc.font, localizedGender, textX, textY, genderColor);
             renderIcon(gui, icon, iconX, iconY, genderColor);
         } else {
+            int textBgWidth = textWidth + TEXT_BG_PADDING_LEFT + TEXT_BG_PADDING_RIGHT;
             int textBgX = (screenWidth - textBgWidth) / 2;
             
             renderBackground(gui, textBgX, bgY, textBgWidth, bgHeight);
@@ -71,7 +78,11 @@ public class GenderUI {
             int textY = centerY - mc.font.lineHeight / 2;
             int textX = textBgX + TEXT_BG_PADDING_LEFT;
             
-            gui.drawString(mc.font, localizedGender, textX, textY, genderColor);
+            if (isBaby && genderColor == 0) {
+                gui.drawString(mc.font, localizedGender, textX, textY, 0xFFFFFF);
+            } else {
+                gui.drawString(mc.font, localizedGender, textX, textY, genderColor);
+            }
         }
     }
     
@@ -96,7 +107,7 @@ public class GenderUI {
             (color & 0xFF) / 255.0f,
             1.0f
         );
-            
+        
         gui.blit(icon, x, y, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
         
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
