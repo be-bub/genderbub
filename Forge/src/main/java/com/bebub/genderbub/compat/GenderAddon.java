@@ -47,7 +47,7 @@ public class GenderAddon {
         String currentGender = GenderCore.getGender(entity);
         boolean isFirstTime = currentGender.equals("none") || currentGender.startsWith("cached_");
         
-        if (isBaby) {
+        if (isBaby && rule.rules != null) {
             for (GenderLoader.CompatRule r : rule.rules) {
                 if ("baby".equals(r.gender)) {
                     Boolean result = isBaby;
